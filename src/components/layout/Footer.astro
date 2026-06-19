@@ -1,0 +1,266 @@
+---
+// Footer — "Start a Conversation" call-to-action card.
+// Light blue-white rounded card with label, headline, social icon
+// buttons, divider, sitemap links, and copyright. Colors/fonts from tokens.css.
+
+const sitemap = [
+  { label: "CASE STUDIES", href: "/work" },
+  { label: "LAB", href: "/lab" },
+  { label: "ABOUT", href: "/about" },
+];
+---
+
+<footer class="footer">
+  <div class="footer__card">
+    <p class="footer__label">
+      LET'S TALK. CURRENTLY OPEN TO NEW OPPORTUNITIES.
+    </p>
+
+    <h2 class="footer__headline">Start a Conversation</h2>
+
+    <div class="footer__socials">
+      <a
+        href="https://www.linkedin.com/in/alice-jie-li-370077a8/"
+        class="footer__icon"
+        aria-label="LinkedIn"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img src="/images/linkedin.svg" alt="" width="48" height="48" />
+      </a>
+
+      <div class="footer__email">
+        <a href="mailto:alice4design@gmail.com" class="footer__icon" aria-label="Email">
+          <img src="/images/email.svg" alt="" width="48" height="48" />
+        </a>
+
+        <div class="footer__email-menu" role="menu">
+          <a
+            href="mailto:alice4design@gmail.com"
+            class="footer__email-option"
+            role="menuitem"
+          >
+            Send email to Alice
+          </a>
+          <button
+            type="button"
+            class="footer__email-option"
+            data-copy-email="alice4design@gmail.com"
+            role="menuitem"
+          >
+            Copy email
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <hr class="footer__divider" />
+
+    <ul class="footer__sitemap">
+      {
+        sitemap.map((item) => (
+          <li>
+            <a href={item.href} class="footer__sitemap-link">
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+
+    <p class="footer__copyright">2026 Alice Li . Design &amp; Build</p>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    max-width: 1280px;
+    margin: 0 auto;
+  }
+
+  .footer__card {
+    background: var(--surface-tertiary);
+    border-radius: 16px;
+    padding: 107px 40px 40px;
+  }
+
+  .footer__label {
+    font-family: var(--font-figtree);
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 34px;
+    color: var(--text-display);
+  }
+
+  .footer__headline {
+    margin: 67px 0 0;
+    font-family: var(--font-geist);
+    font-weight: 800;
+    font-size: 70px;
+    line-height: 1.1;
+    color: var(--text-display);
+  }
+
+  .footer__socials {
+    display: flex;
+    gap: 24px;
+    margin-top: 32px;
+  }
+
+  .footer__icon {
+    display: flex;
+    width: 48px;
+    height: 48px;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .footer__icon:hover {
+    opacity: 0.7;
+  }
+
+  /* Email hover menu */
+  .footer__email {
+    position: relative;
+  }
+
+  .footer__email-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    min-width: 220px;
+    padding: 8px;
+    background: var(--surface-primary);
+    border: 1px solid var(--border-tertiary);
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    /* Hidden until hover/focus */
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-4px);
+    transition:
+      opacity 0.2s,
+      transform 0.2s,
+      visibility 0.2s;
+  }
+
+  /* Invisible bridge so the menu stays open while moving the cursor down */
+  .footer__email-menu::before {
+    content: "";
+    position: absolute;
+    top: -8px;
+    left: 0;
+    right: 0;
+    height: 8px;
+  }
+
+  .footer__email:hover .footer__email-menu,
+  .footer__email:focus-within .footer__email-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .footer__email-option {
+    font-family: var(--font-figtree);
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 1.4;
+    color: var(--text-primary);
+    text-align: left;
+    text-decoration: none;
+    background: none;
+    border: none;
+    padding: 10px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .footer__email-option:hover {
+    background: var(--surface-secondary);
+  }
+
+  .footer__divider {
+    border: none;
+    border-top: 4px solid var(--border-reverse);
+    /* Full-bleed: stretch across the whole card, ignoring the 40px padding */
+    width: calc(100% + 80px);
+    margin: 79px -40px 41px;
+  }
+
+  .footer__sitemap {
+    display: flex;
+    flex-direction: row;
+    gap: 27px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer__sitemap-link {
+    font-family: var(--font-figtree);
+    font-weight: 400;
+    font-size: 24px;
+    line-height: 34px;
+    color: #000000;
+    text-decoration: none;
+    transition: opacity 0.2s;
+  }
+
+  .footer__sitemap-link:hover {
+    opacity: 0.7;
+  }
+
+  .footer__copyright {
+    margin-top: 40px;
+    font-family: var(--font-figtree);
+    font-weight: 400;
+    font-size: 24px;
+    color: var(--text-secondary);
+  }
+
+  @media (max-width: 767px) {
+    .footer__card {
+      padding: 48px 24px 24px;
+    }
+
+    .footer__headline {
+      font-size: 40px;
+    }
+
+    .footer__divider {
+      width: calc(100% + 48px);
+      margin: 48px -24px 32px;
+    }
+
+    .footer__sitemap {
+      flex-wrap: wrap;
+    }
+  }
+</style>
+
+<script>
+  // "Copy email" button — copies the address to the clipboard and briefly
+  // shows "Copied!" as confirmation.
+  document.querySelectorAll<HTMLButtonElement>("[data-copy-email]").forEach((btn) => {
+    btn.addEventListener("click", async () => {
+      const email = btn.dataset.copyEmail;
+      if (!email) return;
+
+      try {
+        await navigator.clipboard.writeText(email);
+        const original = btn.textContent;
+        btn.textContent = "Copied!";
+        setTimeout(() => {
+          btn.textContent = original;
+        }, 1500);
+      } catch {
+        // Clipboard not available — silently ignore.
+      }
+    });
+  });
+</script>

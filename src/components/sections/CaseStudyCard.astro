@@ -1,0 +1,271 @@
+---
+// A single case study card. Handles two layouts:
+//   - "wide":    image and text side by side (image on left or right)
+//   - "compact": image stacked on top of text
+// The image area is a dark-grey placeholder until a real image is provided.
+
+interface Props {
+  variant: "wide" | "compact";
+  imageSide?: "left" | "right";
+  tags: string[];
+  title: string;
+  description: string;
+  image?: string;
+}
+
+const {
+  variant,
+  imageSide = "left",
+  tags,
+  title,
+  description,
+  image = "",
+} = Astro.props;
+---
+
+<article
+  class:list={["card", `card--${variant}`, `card--image-${imageSide}`]}
+>
+  <div class="card__image">
+    {image && <img src={image} alt={title} class="card__image-img" />}
+    <button class="card__expand" type="button" aria-label="Expand image">
+      <img src="/images/expand.svg" alt="" width="64" height="64" />
+    </button>
+  </div>
+
+  <div class="card__text">
+    <ul class="card__tags">
+      {tags.map((tag) => <li>{tag}</li>)}
+    </ul>
+    <div class="card__body">
+      <h3 class="card__title">{title}</h3>
+      <p class="card__description">{description}</p>
+    </div>
+  </div>
+</article>
+
+<style>
+  .card {
+    transition: opacity 0.3s ease;
+  }
+
+  /* ----- Image placeholder ----- */
+  .card__image {
+    position: relative;
+    overflow: hidden;
+    background: var(--surface-reverse); /* dark-grey placeholder */
+  }
+
+  .card__image-img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .card__expand {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    display: flex;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    /* Hidden until the card is hovered */
+    opacity: 0;
+    transition:
+      opacity 0.2s,
+      transform 0.2s;
+  }
+
+  .card:hover .card__expand {
+    opacity: 1;
+  }
+
+  .card__expand:hover {
+    transform: scale(1.05);
+  }
+
+  /* ----- Text block ----- */
+  .card__text {
+    display: flex;
+    flex-direction: column;
+    padding: 24px;
+    background: var(--surface-secondary);
+    min-width: 0;
+  }
+
+  .card__tags {
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-figtree);
+    font-style: italic;
+    font-weight: 500;
+    font-size: var(--text-style-footnote-size);
+    line-height: 34px;
+    color: var(--text-primary);
+  }
+
+  .card__tags li {
+    display: flex;
+    align-items: center;
+  }
+
+  .card__tags li::before {
+    content: "•";
+    margin: 0 8px;
+  }
+
+  .card__body {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .card__title {
+    margin: 0;
+    font-family: var(--font-geist);
+    font-weight: 800;
+    font-size: var(--text-style-title-size);
+    line-height: 1.1;
+    color: var(--text-primary);
+  }
+
+  .card__description {
+    margin: 0;
+    font-family: var(--font-figtree);
+    font-weight: 400;
+    font-size: var(--text-style-subtitle-size);
+    line-height: 34px;
+    color: var(--text-secondary);
+  }
+
+  /* ----- Wide layout (image + text side by side) ----- */
+  .card--wide {
+    display: flex;
+    gap: 24px;
+    align-items: stretch;
+  }
+
+  .card--wide .card__image {
+    flex-shrink: 0;
+    width: 639px;
+    height: 654px;
+  }
+
+  .card--wide .card__text {
+    flex: 1;
+    justify-content: space-between;
+  }
+
+  .card--wide.card--image-right {
+    flex-direction: row-reverse;
+  }
+
+  /* Outer corners are large (40px); the inner seam corners are small (16px) */
+  .card--wide.card--image-left .card__image {
+    border-radius: 40px 16px 16px 40px;
+  }
+  .card--wide.card--image-left .card__text {
+    border-radius: 16px 40px 40px 16px;
+  }
+  .card--wide.card--image-right .card__image {
+    border-radius: 16px 40px 40px 16px;
+  }
+  .card--wide.card--image-right .card__text {
+    border-radius: 40px 16px 16px 40px;
+  }
+
+  /* ----- Compact layout (image on top of text) ----- */
+  .card--compact {
+    display: flex;
+    flex-direction: column;
+    border-radius: 40px;
+    overflow: hidden;
+  }
+
+  .card--compact .card__image {
+    height: 500px;
+  }
+
+  .card--compact .card__text {
+    gap: 16px;
+  }
+
+  /* ----- 901–1279px: compact cards switch to the side-by-side layout ----- */
+  @media (min-width: 901px) and (max-width: 1279px) {
+    .card--compact {
+      flex-direction: row;
+      gap: 24px;
+      align-items: stretch;
+      border-radius: 0;
+      overflow: visible;
+    }
+
+    .card--compact .card__image {
+      flex-shrink: 0;
+      width: 639px;
+      height: 654px;
+    }
+
+    .card--compact .card__text {
+      flex: 1;
+      justify-content: space-between;
+      gap: 0;
+    }
+
+    /* Image on the left (default) */
+    .card--compact.card--image-left .card__image {
+      border-radius: 40px 16px 16px 40px;
+    }
+    .card--compact.card--image-left .card__text {
+      border-radius: 16px 40px 40px 16px;
+    }
+
+    /* Image on the right */
+    .card--compact.card--image-right {
+      flex-direction: row-reverse;
+    }
+    .card--compact.card--image-right .card__image {
+      border-radius: 16px 40px 40px 16px;
+    }
+    .card--compact.card--image-right .card__text {
+      border-radius: 40px 16px 16px 40px;
+    }
+  }
+
+  /* ----- Mobile: stack all cards vertically ----- */
+  @media (max-width: 900px) {
+    .card--wide,
+    .card--compact,
+    .card--wide.card--image-right {
+      flex-direction: column;
+    }
+
+    /* No gap when stacked — image and text box meet flush */
+    .card--wide {
+      gap: 0;
+    }
+
+    .card--wide .card__image,
+    .card--compact .card__image {
+      width: 100%;
+      height: 320px;
+    }
+
+    /* Square the seam where image meets text; round only the outer corners */
+    .card--wide.card--image-left .card__image,
+    .card--wide.card--image-right .card__image,
+    .card--compact .card__image {
+      border-radius: 40px 40px 0 0;
+    }
+    .card--wide.card--image-left .card__text,
+    .card--wide.card--image-right .card__text,
+    .card--compact .card__text {
+      border-radius: 0 0 40px 40px;
+    }
+  }
+</style>

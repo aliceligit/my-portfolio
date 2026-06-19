@@ -1,0 +1,275 @@
+---
+// Hero — name + profile lockup over a dotted grid, with floating keyword pills.
+// The name and profile appear instantly; the pills (HeroPills) animate in and
+// later fall with physics. Pill content lives in src/content/heroPills.ts.
+import { heroPills } from "../../content/heroPills";
+import HeroPills from "../animations/HeroPills.tsx";
+---
+
+<section class="hero">
+  <div class="hero__grid" aria-hidden="true"></div>
+
+  <div class="hero__lockup">
+    <div class="hero__profile">
+      <img
+        src="/images/profile-hi.svg"
+        alt="Alice Li waving hello"
+        class="hero__profile-img"
+        data-profile-default
+      />
+      <img
+        src="/images/profile-scrolled.svg"
+        alt=""
+        class="hero__profile-img hero__profile-img--scrolled is-hidden"
+        data-profile-scrolled
+        aria-hidden="true"
+      />
+    </div>
+    <h1 class="hero__name">Alice Li</h1>
+  </div>
+
+  <HeroPills pills={heroPills} client:only="react" />
+</section>
+
+<script>
+  // Swap the profile photo to its "scrolled" state once the page scrolls.
+  const def = document.querySelector<HTMLImageElement>("[data-profile-default]");
+  const scrolled = document.querySelector<HTMLImageElement>(
+    "[data-profile-scrolled]",
+  );
+
+  const update = () => {
+    const isScrolled = window.scrollY > 60;
+    def?.classList.toggle("is-hidden", isScrolled);
+    scrolled?.classList.toggle("is-hidden", !isScrolled);
+  };
+
+  update();
+  window.addEventListener("scroll", update, { passive: true });
+</script>
+
+<style is:global>
+  .hero {
+    /* --u is the scale unit: 1px at full size, shrinking below 1280px so the
+       whole hero (frame, fonts, pills, dots, spacing) scales proportionally. */
+    --u: 1px;
+    position: relative;
+    width: min(1280px, 100%);
+    height: calc(660 * var(--u));
+    margin: 0 auto;
+    overflow: hidden;
+    border-radius: calc(40 * var(--u));
+    /* Subtle top-to-bottom gradient: white -> light grey (#F5F5F5) */
+    background: linear-gradient(
+      180deg,
+      var(--surface-primary) 0%,
+      var(--surface-secondary) 100%
+    );
+  }
+
+  @media (max-width: 1280px) {
+    .hero {
+      --u: calc(100vw / 1280);
+    }
+  }
+
+  /* Dotted background grid */
+  .hero__grid {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-image: radial-gradient(
+      circle,
+      rgba(117, 112, 106, 0.28) calc(1.4 * var(--u)),
+      transparent calc(1.4 * var(--u))
+    );
+    background-size: calc(30 * var(--u)) calc(30 * var(--u));
+    background-position: center;
+  }
+
+  /* Name + profile, centered */
+  /* Profile + name are centered together as one group. */
+  .hero__lockup {
+    position: absolute;
+    top: 46%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: calc(32 * var(--u));
+    pointer-events: none;
+  }
+
+  .hero__profile {
+    position: relative;
+    flex-shrink: 0;
+    /* Height matches the name; width follows the image's 119:101 ratio */
+    height: calc(96 * var(--u));
+    aspect-ratio: 119 / 101;
+  }
+
+  .hero__profile-img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    transition: opacity 0.4s ease;
+  }
+
+  .hero__profile-img.is-hidden {
+    opacity: 0;
+  }
+
+  .hero__name {
+    margin: 0;
+    font-family: var(--font-jersey-10);
+    font-weight: 400;
+    font-size: calc(150 * var(--u));
+    line-height: normal;
+    letter-spacing: calc(15 * var(--u));
+    color: var(--text-display);
+    white-space: nowrap;
+  }
+
+  /* Pills layer */
+  .hero__pills {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+
+  /* Each pill carries a closed hand during the intro, then it fades out */
+  .hero-pill__hand {
+    position: absolute;
+    right: calc(12 * var(--u));
+    bottom: calc(-14 * var(--u));
+    width: calc(23.5 * var(--u));
+    height: calc(22 * var(--u));
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+    /* Per-pill colored hand icon (set by each color modifier) */
+    background: var(--pill-hand) no-repeat center / contain;
+  }
+
+  .hero__pills--intro-done .hero-pill__hand {
+    opacity: 0;
+  }
+
+  /* Once placed and the hands have faded, tighten every pill's shadow */
+  .hero__pills--intro-done .hero-pill {
+    --pill-shadow: 0px calc(4 * var(--u)) calc(4 * var(--u)) rgba(0, 0, 0, 0.25);
+  }
+
+  /* Exact pill spec from Figma: white -> color gradient fill, thin border,
+     drop shadow, 24px Figtree text. Each color sets its own gradient. */
+  .hero-pill {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: calc(6 * var(--u));
+    padding: calc(17.92 * var(--u)) calc(20.309 * var(--u));
+    border: calc(0.597 * var(--u)) solid transparent;
+    border-radius: 999px;
+    font-family: var(--font-figtree);
+    font-weight: 400;
+    font-size: calc(24 * var(--u));
+    line-height: calc(23.893 * var(--u));
+    color: #68645e;
+    text-align: center;
+    white-space: nowrap;
+    cursor: grab;
+    user-select: none;
+    will-change: transform;
+    /* While flying in, pills carry a larger, softer shadow; once they're placed
+       and the hands fade (intro done), the shadow tightens. Plus an inset white
+       rim that hugs the bottom-left edge (follows the pill's rounded shape). */
+    --pill-shadow: 0px calc(8 * var(--u)) calc(16 * var(--u)) rgba(0, 0, 0, 0.15);
+    box-shadow:
+      var(--pill-shadow),
+      inset calc(4 * var(--u)) calc(-4 * var(--u)) calc(8 * var(--u))
+        rgba(255, 255, 255, 0.7);
+    transition: box-shadow 0.4s ease;
+    /* Two layers: the color fill (inside) + the border gradient (in the ring).
+       The fill is clipped to the padding box, the border gradient to the
+       border box, so the border shows #889BA6 (top) -> white (bottom). */
+    background-image: var(--pill-fill, none),
+      linear-gradient(180deg, var(--color-pill-border) 0%, #ffffff 100%);
+    background-origin: border-box;
+    background-clip: padding-box, border-box;
+  }
+
+  .hero-pill:active {
+    cursor: grabbing;
+  }
+
+  /* Soft white highlight (a blurred white ellipse clipped to the pill),
+     matching the Figma "Ellipse" layer with a 14.5px layer blur. */
+  .hero-pill__glow {
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  .hero-pill__glow::before {
+    content: "";
+    position: absolute;
+    left: 50%;
+    top: 0;
+    width: 98%;
+    height: 150%;
+    transform: translate(-50%, -38%);
+    border-radius: 50%;
+    background: #ffffff;
+    filter: blur(calc(14.5 * var(--u)));
+  }
+
+
+  /* Keep the text above the highlight */
+  .hero-pill__label {
+    position: relative;
+    z-index: 1;
+  }
+
+  .hero-pill--blue {
+    --pill-hand: url("/images/closedhand-blue.svg");
+    --pill-fill: linear-gradient(
+      21.171deg,
+      var(--color-pill-blue) 0%,
+      #ffffff 100%
+    );
+  }
+  .hero-pill--red {
+    --pill-hand: url("/images/closedhand-red.svg");
+    --pill-fill: linear-gradient(
+      29.132deg,
+      var(--color-pill-red) 0%,
+      #ffffff 100%
+    );
+  }
+  .hero-pill--yellow {
+    --pill-hand: url("/images/closedhand-yellow.svg");
+    --pill-fill: linear-gradient(
+      48.344deg,
+      var(--color-pill-yellow) 0%,
+      #ffffff 100%
+    );
+  }
+  .hero-pill--grey {
+    --pill-hand: url("/images/closedhand-grey.svg");
+    --pill-fill: linear-gradient(
+      45.042deg,
+      var(--color-pill-grey) 0%,
+      #ffffff 100%
+    );
+  }
+
+  /* Below 1280px everything scales via --u (set above), so no per-size
+     breakpoints are needed here. */
+</style>

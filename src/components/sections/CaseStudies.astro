@@ -1,0 +1,85 @@
+---
+// "Case Studies" section for the home page.
+// Wide cards are shown one per row; compact cards fill a two-column grid.
+// Card content comes from src/content/caseStudies.ts.
+import CaseStudyCard from "./CaseStudyCard.astro";
+import { caseStudies } from "../../content/caseStudies";
+
+const wideCards = caseStudies.filter((card) => card.variant === "wide");
+const compactCards = caseStudies.filter((card) => card.variant === "compact");
+---
+
+<section class="case-studies">
+  <h2 class="case-studies__heading">Case Studies</h2>
+
+  <div class="case-studies__list">
+    {wideCards.map((card) => <CaseStudyCard {...card} />)}
+
+    <div class="case-studies__grid">
+      {compactCards.map((card) => <CaseStudyCard {...card} />)}
+    </div>
+  </div>
+</section>
+
+<style>
+  .case-studies {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 80px 0;
+  }
+
+  .case-studies__heading {
+    margin: 0 0 60px;
+    font-family: var(--font-geist);
+    font-weight: 800;
+    font-size: var(--text-style-title-size);
+    line-height: 1.1;
+    color: var(--text-primary);
+  }
+
+  .case-studies__list {
+    display: flex;
+    flex-direction: column;
+    gap: 60px;
+  }
+
+  .case-studies__grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 48px;
+    row-gap: 60px;
+  }
+
+  /* Hover white-wash: fade every card, but keep the hovered one fully visible */
+  .case-studies__list:hover :global(.card) {
+    opacity: 0.35;
+  }
+  .case-studies__list:hover :global(.card):hover {
+    opacity: 1;
+  }
+
+  /* Keep content off the screen edges on smaller viewports */
+  @media (max-width: 1328px) {
+    .case-studies {
+      padding-left: 24px;
+      padding-right: 24px;
+    }
+  }
+
+  /* Below 1280px: compact cards become full-width rows (one per line) */
+  @media (max-width: 1279px) {
+    .case-studies__grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .case-studies__heading {
+      margin-bottom: 40px;
+    }
+
+    .case-studies__list {
+      gap: 48px;
+    }
+  }
+</style>

@@ -24,6 +24,13 @@
   --color-grey-light-grey: #f5f5f5;
   --color-grey-white: #ffffff;
 
+  /* Hero pill gradient colors (each fades to white) */
+  --color-pill-blue: #bfe9fd;
+  --color-pill-red: #fcc6c1;
+  --color-pill-yellow: #fff097;
+  --color-pill-grey: #e1d5ca;
+  --color-pill-border: #889ba6;
+
   /* Scale (spacing, sizing, radii — shared number ramp) */
   --scale-0: 0px;
   --scale-25: 1px;
@@ -117,4 +124,31 @@
   --text-style-footnote-size: 15px;
   --text-style-footnote-line-height: 34px;
   --text-style-footnote-style: italic;
+}
+
+
+/* ----- 4. RESPONSIVE TYPE SCALE -----
+   The text-style sizes shrink on smaller screens. Defined once here so every
+   element using these tokens updates automatically.
+
+     Breakpoint           Title   Subtitle   Footnote
+     Desktop (>=1280)      40px    24px       15px   (defaults above)
+     Tablet (900-1279)     32px    20px       13px
+     Mobile (<900)         24px    16px       11px
+*/
+
+@media (max-width: 1279px) {
+  :root {
+    --text-style-title-size: 32px;
+    --text-style-subtitle-size: 20px;
+    --text-style-footnote-size: 13px;
+  }
+}
+
+@media (max-width: 899px) {
+  :root {
+    --text-style-title-size: 24px;
+    --text-style-subtitle-size: 16px;
+    --text-style-footnote-size: 11px;
+  }
 }

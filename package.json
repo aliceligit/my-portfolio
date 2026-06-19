@@ -16,8 +16,12 @@
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "astro": "^6.4.7",
+    "matter-js": "^0.20.0",
     "motion": "^12.40.0",
     "react": "^19.2.7",
     "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/matter-js": "^0.20.2"
   }
 }

@@ -72,6 +72,33 @@ Font families: Cormorant Garamond, Figtree, Geist, Jersey 10.
 - **URL:** https://www.figma.com/design/uHIxcwkYnCgelkeVNSE5Cx/Portfolio---Case-Study
 - **Library:** Published as a team library under "Alice" team
 
+## How to brief Claude on a design (best practice)
+
+Reading the Figma frame directly is far more accurate than describing it in
+words — Claude gets exact pixel values, fonts, colors, and a screenshot in one
+step. A described spec is a lossy copy and tends to drift from the real design.
+
+**Recommended request format:**
+
+> Build [component] from this Figma frame: [link with the frame selected, so the
+> URL contains a `node-id`].
+> - **Behavior:** hover states, links, what's interactive, responsive notes
+> - **Content:** real text/URLs, or "placeholder for now"
+> - **Deviations:** anything to do differently from the design
+
+Why each part matters:
+
+- **The Figma link** handles all the *visual* details (layout, spacing, type,
+  color). Always select the specific frame so its `node-id` is in the URL.
+- **Behavior / content / deviations** are things a static design *can't* show —
+  Claude needs these in words (e.g. "LinkedIn opens in a new tab").
+
+**Caveats:**
+
+- The Figma MCP has rate limits (Starter plan). Point Claude at **one
+  component/frame at a time** rather than "build all pages from this link."
+- No need to state the stack — it's documented here and Claude checks it.
+
 ## Commands
 
 - `npm run dev` — start local dev server
