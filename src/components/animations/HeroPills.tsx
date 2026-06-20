@@ -136,6 +136,14 @@ export default function HeroPills({ pills }: { pills: HeroPill[] }) {
 
       // Let pills be dragged around.
       const mouse = Mouse.create(container);
+      // Matter's mouse adds wheel/touch listeners that preventDefault, which
+      // blocks page scrolling while the cursor/finger is over the hero. Remove
+      // them so the page scrolls normally (mouse-drag of pills still works).
+      const m = mouse as unknown as Record<string, EventListener>;
+      container.removeEventListener("wheel", m.mousewheel);
+      container.removeEventListener("touchstart", m.mousedown);
+      container.removeEventListener("touchmove", m.mousemove);
+      container.removeEventListener("touchend", m.mouseup);
       const mouseConstraint = MouseConstraint.create(engine, {
         mouse,
         constraint: { stiffness: 0.2, render: { visible: false } },
@@ -172,6 +180,10 @@ export default function HeroPills({ pills }: { pills: HeroPill[] }) {
       if (window.scrollY > SCROLL_TRIGGER) startPhysics();
     };
     window.addEventListener("scroll", onScroll, { passive: true });
+
+    // The hero scroll-lock fires this when it holds the page for the drop.
+    const onDrop = () => startPhysics();
+    window.addEventListener("hero:drop", onDrop);
 
     const onResize = () => {
       // Still floating: recompute each pill's resting spot.
@@ -220,6 +232,7 @@ export default function HeroPills({ pills }: { pills: HeroPill[] }) {
       clearTimeout(introTimer);
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("hero:drop", onDrop);
       window.removeEventListener("resize", onResize);
       const Matter = matterRef.current;
       if (Matter && runnerRef.current) Matter.Runner.stop(runnerRef.current);

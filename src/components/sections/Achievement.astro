@@ -1,0 +1,269 @@
+---
+// Achievement — three cards between the hero and case studies.
+// Desktop: three cards side by side. The grey "subtract" background notches
+// around each heading; the notch is generated at runtime to fit the heading's
+// actual width (works for any text, font, or screen size).
+// Mobile (<900px): the row is pinned and scrolls horizontally as the page
+// scrolls down; once it reaches the end, scrolling continues to the next section.
+// Content comes from src/content/achievements.ts.
+import { achievements } from "../../content/achievements";
+---
+
+<div class="ach-track">
+  <div class="ach-sticky">
+    <div class="ach">
+      {
+        achievements.map((item) => (
+          <article class="ach__card">
+            <h3 class="ach__heading">{item.heading}</h3>
+            <p class="ach__body">{item.body}</p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</div>
+
+<script>
+  // ---- 1. Generate each card's "subtract" notch to fit its heading ----
+  const R = 16;
+  const PADX = 24;
+  const C = 7.163;
+
+  function buildPath(W: number, H: number, nw: number, nh: number) {
+    return [
+      `M${W} ${H - R}`,
+      `C${W} ${H - C} ${W - C} ${H} ${W - R} ${H}`,
+      `H${R}`,
+      `C${C} ${H} 0 ${H - C} 0 ${H - R}`,
+      `V${nh + R}`,
+      `C0 ${nh + C} ${C} ${nh} ${R} ${nh}`,
+      `H${nw - R}`,
+      `C${nw - C} ${nh} ${nw} ${nh - C} ${nw} ${nh - R}`,
+      `V${R}`,
+      `C${nw} ${C} ${nw + C} 0 ${nw + R} 0`,
+      `H${W - R}`,
+      `C${W - C} 0 ${W} ${C} ${W} ${R}`,
+      `V${H - R}Z`,
+    ].join("");
+  }
+
+  function paintNotch(card: HTMLElement) {
+    const heading = card.querySelector<HTMLElement>(".ach__heading");
+    if (!heading) return;
+    const W = card.clientWidth;
+    const H = card.clientHeight;
+    if (!W || !H) return;
+    const nh = heading.offsetHeight; // notch height = the heading's actual height
+    const headingRight = heading.offsetLeft + heading.scrollWidth;
+    const nw = Math.max(nh, Math.min(headingRight + PADX, W - R - 8));
+    const grey =
+      getComputedStyle(card).getPropertyValue("--surface-secondary").trim() ||
+      "#f5f5f5";
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 ${W} ${H}' preserveAspectRatio='none'><path d='${buildPath(W, H, nw, nh)}' fill='${grey}'/></svg>`;
+    card.style.setProperty(
+      "--bg",
+      `url("data:image/svg+xml,${encodeURIComponent(svg)}")`,
+    );
+  }
+
+  const cards = document.querySelectorAll<HTMLElement>(".ach__card");
+  const ro = new ResizeObserver((entries) =>
+    entries.forEach((e) => paintNotch(e.target as HTMLElement)),
+  );
+  cards.forEach((card) => ro.observe(card));
+
+  // ---- 2. Mobile pinned horizontal scroll ----
+  const track = document.querySelector<HTMLElement>(".ach-track");
+  const sticky = document.querySelector<HTMLElement>(".ach-sticky");
+  const row = document.querySelector<HTMLElement>(".ach");
+  const mq = window.matchMedia("(max-width: 899px)");
+  let distance = 0;
+
+  function applyScroll() {
+    if (distance <= 0 || !sticky || !row) return;
+    // Slide the cards horizontally as the section scrolls up. Progress is tied
+    // to the scroll position (not just the section's place in the viewport), so
+    // at page load it's exactly 0 — the first card stays left-aligned with its
+    // padding — and reaches 1 as the section's top reaches the top of the screen.
+    const rect = sticky.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const sectionTop = rect.top + window.scrollY; // document offset (constant)
+    const startY = Math.max(0, sectionTop - (vh - rect.height));
+    // Finish the pan before the section reaches the very top (0.6 of the way),
+    // so the last card stays fully visible for a while instead of flashing past.
+    const panDist = Math.max(1, (sectionTop - startY) * 0.6);
+    const p = Math.max(0, Math.min(1, (window.scrollY - startY) / panDist));
+    row.style.transform = `translateX(${-p * distance}px)`;
+  }
+
+  let ticking = false;
+  function onScroll() {
+    if (ticking) return;
+    ticking = true;
+    requestAnimationFrame(() => {
+      applyScroll();
+      ticking = false;
+    });
+  }
+
+  function layout() {
+    if (!row) return;
+    if (!mq.matches) {
+      row.style.transform = "";
+      distance = 0;
+      return;
+    }
+    // Pan so the last card ends with the row's right padding visible after it.
+    // (scrollWidth omits right padding when content overflows, so measure the
+    // last card's right edge and add the padding back.)
+    row.style.transform = "none";
+    const rowLeft = row.getBoundingClientRect().left;
+    const last = row.querySelector<HTMLElement>(".ach__card:last-child");
+    const padRight = parseFloat(getComputedStyle(row).paddingRight) || 0;
+    const contentRight = last
+      ? last.getBoundingClientRect().right - rowLeft + padRight
+      : row.scrollWidth;
+    distance = Math.max(0, contentRight - window.innerWidth);
+    applyScroll();
+  }
+
+  // When the cards live inside the pinned hero stage, that stage drives the
+  // horizontal pan, so we skip the section's own scroll handling here.
+  const inStage = !!document.querySelector(".hero-stage");
+  if (!inStage) {
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", layout);
+    layout();
+  }
+  document.fonts?.ready.then(() => {
+    cards.forEach(paintNotch);
+    if (!inStage) layout();
+  });
+</script>
+
+<style>
+  /* On desktop the wrappers do nothing — the row lays out as before */
+  .ach-track,
+  .ach-sticky {
+    display: contents;
+  }
+
+  .ach {
+    display: flex;
+    gap: 32px;
+    max-width: 1280px;
+    /* Only a top gap; the next section owns the gap below it */
+    margin: var(--space-section) auto 0;
+    /* Appears on page load */
+    animation: ach-in 0.6s ease both;
+  }
+
+  @keyframes ach-in {
+    from {
+      opacity: 0;
+      transform: translateY(16px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  /* Keep cards off the screen edges below full width */
+  @media (max-width: 1328px) {
+    .ach {
+      padding: 0 24px;
+    }
+  }
+
+  .ach__card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1 0 0;
+    min-width: 0;
+    min-height: 222px;
+    padding: 0 16px 24px;
+  }
+
+  /* The grey "subtract" shape (generated to fit the heading by the script
+     above). Falls back to a plain grey rounded panel before the script runs. */
+  .ach__card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    border-radius: 16px;
+    background: var(--bg, var(--surface-secondary)) no-repeat center / 100% 100%;
+  }
+
+  .ach__heading {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    align-self: flex-start; /* shrink to the text so it can be measured */
+    /* Tight vertical padding so the notch hugs the heading at any text size */
+    padding: 8px 0;
+    margin: 0;
+    font-family: var(--font-geist);
+    font-weight: 800;
+    font-size: var(--text-style-title-size);
+    line-height: 1;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+
+  .ach__body {
+    position: relative;
+    z-index: 1;
+    margin: 16px 0 0;
+    font-family: var(--font-figtree);
+    font-weight: 400;
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-secondary);
+  }
+
+  /* Tablet (900–1279): tighter gap */
+  @media (max-width: 1279px) {
+    .ach {
+      gap: 24px;
+    }
+  }
+
+  /* Mobile (<900): the cards slide horizontally as the section scrolls through
+     the viewport (no pin), so there's no blank space — just the normal 60px
+     spacing. The script sets the horizontal offset from the scroll position. */
+  @media (max-width: 899px) {
+    .ach-track {
+      display: block;
+      position: relative;
+      margin: var(--space-section) 0 0;
+    }
+
+    .ach-sticky {
+      display: block;
+      overflow: hidden; /* clip the cards that slide off-screen */
+    }
+
+    .ach {
+      margin: 0;
+      max-width: none;
+      gap: 16px;
+      /* 24px left (matches the first card) + a larger 40px trailing gap so the
+         last card has a clearer space after it at the end of the scroll */
+      padding: 0 40px 0 24px;
+      flex-wrap: nowrap;
+      will-change: transform;
+      animation: none;
+    }
+
+    .ach__card {
+      flex: 0 0 300px;
+      /* Fit the shorter mobile text instead of the fixed desktop height */
+      min-height: 0;
+    }
+  }
+</style>

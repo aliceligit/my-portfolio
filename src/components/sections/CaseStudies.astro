@@ -25,7 +25,8 @@ const compactCards = caseStudies.filter((card) => card.variant === "compact");
   .case-studies {
     max-width: 1280px;
     margin: 0 auto;
-    padding: 80px 0;
+    /* Larger gap above (from achievement); standard gap below (to the footer) */
+    padding: var(--space-section-lg) 0 var(--space-section);
   }
 
   .case-studies__heading {

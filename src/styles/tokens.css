@@ -96,6 +96,12 @@
   --spacing-m: var(--scale-400);
   --spacing-l: var(--scale-1000);
   --spacing-xl: var(--scale-1200);
+
+  /* Section spacing — gap between page sections (responsive)
+     --space-section:    standard gap  (60 / 50 / 40)
+     --space-section-lg: larger gap    (80 / 60 / 40) */
+  --space-section: 60px;
+  --space-section-lg: 80px;
 }
 
 
@@ -124,6 +130,12 @@
   --text-style-footnote-size: 15px;
   --text-style-footnote-line-height: 34px;
   --text-style-footnote-style: italic;
+
+  /* Body — Figtree Regular 20px / 34px */
+  --text-style-body-family: var(--font-figtree);
+  --text-style-body-weight: var(--weight-regular);
+  --text-style-body-size: 20px;
+  --text-style-body-line-height: 34px;
 }
 
 
@@ -142,6 +154,10 @@
     --text-style-title-size: 32px;
     --text-style-subtitle-size: 20px;
     --text-style-footnote-size: 13px;
+    --text-style-body-size: 18px;
+    --text-style-body-line-height: 26px;
+    --space-section: 50px;
+    --space-section-lg: 60px;
   }
 }
 
@@ -150,5 +166,9 @@
     --text-style-title-size: 24px;
     --text-style-subtitle-size: 16px;
     --text-style-footnote-size: 11px;
+    --text-style-body-size: 15px;
+    --text-style-body-line-height: 20px;
+    --space-section: 40px;
+    --space-section-lg: 40px;
   }
 }

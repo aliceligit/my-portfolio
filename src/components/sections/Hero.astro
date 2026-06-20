@@ -46,6 +46,43 @@ import HeroPills from "../animations/HeroPills.tsx";
 
   update();
   window.addEventListener("scroll", update, { passive: true });
+
+  // Scroll-lock: the first time the user tries to scroll from the top, hold the
+  // page in place, let the pills drop, then release so they can scroll on.
+  const FALL_MS = 1500;
+  let dropped = false;
+  let locking = false;
+
+  const lockAndDrop = (e: Event) => {
+    if (dropped) return;
+    if (window.scrollY > 0) {
+      dropped = true;
+      return;
+    }
+    // Ignore upward wheel scrolls (nothing to scroll up to at the top).
+    if (e instanceof WheelEvent && e.deltaY <= 0) return;
+
+    if (!locking) {
+      locking = true;
+      window.dispatchEvent(new Event("hero:drop")); // tell the pills to fall
+      setTimeout(() => {
+        locking = false;
+        dropped = true;
+      }, FALL_MS);
+    }
+    if (locking) e.preventDefault();
+  };
+
+  window.addEventListener("wheel", lockAndDrop, { passive: false });
+  window.addEventListener("touchmove", lockAndDrop, { passive: false });
+  window.addEventListener(
+    "keydown",
+    (e) => {
+      if (["ArrowDown", "PageDown", " ", "Spacebar"].includes(e.key))
+        lockAndDrop(e);
+    },
+    { passive: false },
+  );
 </script>
 
 <style is:global>

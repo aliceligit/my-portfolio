@@ -29,8 +29,15 @@ my-portfolio/
 │   │   └── BaseLayout.astro  ← Shared HTML shell used by every page
 │   └── pages/
 │       └── index.astro    ← Home page (uses BaseLayout)
+├── docs/                  ← Notes on reusable techniques (e.g. scroll effects)
 └── package.json
 ```
+
+## Docs / reusable techniques
+
+- `docs/scroll-linked-horizontal-pan.md` — the "no-pin" method for making a row
+  of cards pan horizontally on vertical scroll without any blank space
+  (preferred over a pinned/sticky section, which always leaves blank space).
 
 ## Where things live
 
@@ -49,8 +56,17 @@ my-portfolio/
    `src/content/`, not embedded in component files.
 2. **One animation per file.** Each interaction gets its own small, named file
    in `src/components/animations/`.
-3. **Design tokens in one place.** All colors, fonts, sizes, spacing, and radii
-   come from `src/styles/tokens.css`. Never hard-code these values elsewhere.
+3. **Design tokens in one place.** All colors, fonts, type sizes, spacing, and
+   radii come from `src/styles/tokens.css`. Never hard-code these values.
+   Process to follow before typing any such literal:
+   - **Check `tokens.css` first** for a token with that value and use it
+     (e.g. `var(--text-style-title-size)`, not `40px`).
+   - **If no token exists but the value belongs to the design system, add it to
+     `tokens.css` and tell Alice** — don't hard-code it.
+   - Only exact one-off layout measurements that aren't part of the design
+     system (e.g. a component's `17.92px` padding) may stay as literals.
+   - Alice can say **"audit for hardcoded values"** anytime to have every stray
+     literal found and converted to a token.
 4. **Astro for pages, React only for interactivity.** Static parts use Astro
    components. React is only used when something needs to be interactive or
    animated.
