@@ -2,6 +2,16 @@
 // Nav — site header that overlays the hero.
 // Logo on the left, nav links on the right (hidden on mobile, replaced by a
 // hamburger button placeholder). All colors/fonts come from tokens.css.
+//
+// `wrapped` makes the nav blend into the grey hero card below it (transparent
+// bar + grey rounded-top inner) so the two read as one card. Off by default, so
+// most pages keep the plain white nav.
+
+interface Props {
+  wrapped?: boolean;
+}
+
+const { wrapped = false } = Astro.props;
 
 const links = [
   { label: "WORK", href: "/work" },
@@ -10,7 +20,7 @@ const links = [
 ];
 ---
 
-<header class="nav">
+<header class:list={["nav", { "nav--wrapped": wrapped }]}>
   <nav class="nav__inner">
     <a href="/" class="nav__logo">ALICE LI</a>
 
@@ -51,6 +61,26 @@ const links = [
     max-width: 1280px;
     margin: 0 auto;
     padding: 24px;
+  }
+
+  /* Wrapped: blend the nav into the grey hero card below. The full-width white
+     bar goes transparent; the centered inner becomes the top of the grey card
+     (rounded top corners), with its content inset to line up with the hero
+     below. The hero supplies the matching rounded bottom corners. */
+  .nav--wrapped {
+    background: transparent;
+  }
+
+  .nav--wrapped .nav__inner {
+    background: var(--surface-secondary);
+    border-radius: 40px 40px 0 0;
+    padding: 40px 60px 24px;
+  }
+
+  @media (max-width: 899px) {
+    .nav--wrapped .nav__inner {
+      padding: 32px 24px 24px;
+    }
   }
 
   .nav__logo {

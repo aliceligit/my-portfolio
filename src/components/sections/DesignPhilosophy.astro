@@ -1,0 +1,117 @@
+---
+// DesignPhilosophy — the centered grey card below the AboutHero. A "Design
+// Philosophy" heading followed by three stacked blocks, each with a small icon,
+// an italic title, and a body paragraph. Content lives in src/content/about.ts.
+import { philosophyTitle, philosophies } from "../../content/about";
+---
+
+<section class="philosophy">
+  <h2 class="philosophy__title">{philosophyTitle}</h2>
+
+  <div class="philosophy__list">
+    {
+      philosophies.map((item) => (
+        <article class="philosophy__item">
+          <img
+            class="philosophy__icon"
+            src={item.icon}
+            alt=""
+            aria-hidden="true"
+          />
+          <h3 class="philosophy__item-title">{item.title}</h3>
+          <p class="philosophy__item-body">{item.body}</p>
+        </article>
+      ))
+    }
+  </div>
+</section>
+
+<style>
+  .philosophy {
+    width: min(864px, 100% - 48px);
+    margin: var(--space-section) auto;
+    /* top | sides | bottom — extra room at the bottom below the last block */
+    padding: var(--scale-1000) var(--scale-1100) var(--scale-1200); /* 40px 80px 120px */
+    background: var(--surface-secondary);
+    border-radius: 40px;
+  }
+
+  .philosophy__title {
+    margin: 0;
+    font-family: var(--text-style-section-title-family);
+    font-weight: var(--text-style-section-title-weight);
+    font-size: var(--text-style-section-title-size);
+    line-height: var(--text-style-section-title-line-height);
+    color: var(--text-primary);
+    text-align: center;
+  }
+
+  .philosophy__list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--spacing-xl); /* 120px between blocks */
+    margin-top: var(--spacing-l); /* 40px below the title */
+  }
+
+  .philosophy__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    max-width: 640px;
+    text-align: center;
+  }
+
+  /* The geometric icon above each title. Its size is driven by one variable
+     (--icon-size) so it scales down with the screen at the breakpoints below. */
+  .philosophy__icon {
+    height: var(--icon-size, 24px);
+    width: auto;
+  }
+
+  .philosophy__item-title {
+    margin: 0;
+    font-family: var(--text-style-display-2-family);
+    font-weight: var(--text-style-display-2-weight);
+    font-style: var(--text-style-display-2-style);
+    font-size: var(--text-style-display-2-size);
+    line-height: var(--text-style-display-2-line-height);
+    color: var(--text-primary);
+  }
+
+  .philosophy__item-body {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-secondary);
+  }
+
+  /* Tighter padding, block gaps, and smaller icons as the screen narrows */
+  @media (max-width: 1279px) {
+    .philosophy {
+      /* top/sides 40px | bottom 80px */
+      padding: var(--scale-1000) var(--scale-1000) var(--scale-1100);
+      --icon-size: 20px;
+    }
+
+    .philosophy__list {
+      gap: var(--scale-1100); /* 80px */
+    }
+  }
+
+  @media (max-width: 899px) {
+    .philosophy {
+      /* top 32px | sides 24px | bottom 56px */
+      padding: var(--scale-800) var(--scale-600) 56px;
+      border-radius: 24px;
+      --icon-size: 16px;
+    }
+
+    .philosophy__list {
+      gap: 56px;
+    }
+  }
+</style>

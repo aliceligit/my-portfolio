@@ -4,9 +4,12 @@ import Footer from "../components/layout/Footer.astro";
 
 interface Props {
   title?: string;
+  // When true, the nav blends into the grey hero card below (used on the
+  // About page). Defaults to the plain white nav.
+  wrapNav?: boolean;
 }
 
-const { title = "Alice Li — Portfolio" } = Astro.props;
+const { title = "Alice Li — Portfolio", wrapNav = false } = Astro.props;
 ---
 
 <html lang="en">
@@ -17,18 +20,19 @@ const { title = "Alice Li — Portfolio" } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- Google Fonts: Geist (800) + Figtree (400, 600) + Jersey 10 (pixel name) -->
+    <!-- Google Fonts: Cormorant Garamond (400 + 700 italic) + Figtree (400, 600)
+         + Geist (800) + Jersey 10 (single pixel weight) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600&family=Geist:wght@800&family=Jersey+10&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,700&family=Figtree:wght@400;600&family=Geist:wght@800&family=Jersey+10&display=swap"
       rel="stylesheet"
     />
 
     <title>{title}</title>
   </head>
   <body>
-    <Nav />
+    <Nav wrapped={wrapNav} />
     <main>
       <slot />
     </main>
