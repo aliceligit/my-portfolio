@@ -136,6 +136,27 @@
   --text-style-body-weight: var(--weight-regular);
   --text-style-body-size: 20px;
   --text-style-body-line-height: 34px;
+
+  /* Section Title — Jersey 10 64px. (Jersey 10 ships a single weight; Figma
+     labels it ExtraBold but it renders at 400, like the hero name.) */
+  --text-style-section-title-family: var(--font-jersey-10);
+  --text-style-section-title-weight: var(--weight-regular);
+  --text-style-section-title-size: 64px;
+  --text-style-section-title-line-height: normal;
+
+  /* Display — Cormorant Garamond Bold Italic 40px / 60px */
+  --text-style-display-family: var(--font-cormorant-garamond);
+  --text-style-display-weight: var(--weight-bold);
+  --text-style-display-style: italic;
+  --text-style-display-size: 40px;
+  --text-style-display-line-height: 60px;
+
+  /* Display 2 — Cormorant Garamond Bold Italic 32px */
+  --text-style-display-2-family: var(--font-cormorant-garamond);
+  --text-style-display-2-weight: var(--weight-bold);
+  --text-style-display-2-style: italic;
+  --text-style-display-2-size: 32px;
+  --text-style-display-2-line-height: normal;
 }
 
 
@@ -143,10 +164,10 @@
    The text-style sizes shrink on smaller screens. Defined once here so every
    element using these tokens updates automatically.
 
-     Breakpoint           Title   Subtitle   Footnote
-     Desktop (>=1280)      40px    24px       15px   (defaults above)
-     Tablet (900-1279)     32px    20px       13px
-     Mobile (<900)         24px    16px       11px
+     Breakpoint        Title  Subtitle  Footnote  Section Title  Display      Display 2
+     Desktop (>=1280)  40px   24px      15px      64px           40 / 60      32px   (defaults above)
+     Tablet (900-1279) 32px   20px      13px      48px           32 / 50      28px
+     Mobile (<900)     24px   16px      11px      32px           24 / 40      22px
 */
 
 @media (max-width: 1279px) {
@@ -156,6 +177,10 @@
     --text-style-footnote-size: 13px;
     --text-style-body-size: 18px;
     --text-style-body-line-height: 26px;
+    --text-style-section-title-size: 48px;
+    --text-style-display-size: 32px;
+    --text-style-display-line-height: 50px;
+    --text-style-display-2-size: 28px;
     --space-section: 50px;
     --space-section-lg: 60px;
   }
@@ -168,6 +193,10 @@
     --text-style-footnote-size: 11px;
     --text-style-body-size: 15px;
     --text-style-body-line-height: 20px;
+    --text-style-section-title-size: 32px;
+    --text-style-display-size: 24px;
+    --text-style-display-line-height: 40px;
+    --text-style-display-2-size: 22px;
     --space-section: 40px;
     --space-section-lg: 40px;
   }

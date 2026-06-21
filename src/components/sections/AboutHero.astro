@@ -1,0 +1,68 @@
+---
+// AboutHero — the intro card at the top of the About page.
+// Left: a large italic statement whose words light up one by one (WordReveal).
+// Right: Alice's headshot. The card sits flush under the nav and is rounded at
+// the bottom only. Copy lives in src/content/about.ts.
+import { aboutHero } from "../../content/about";
+import WordReveal from "../animations/WordReveal.tsx";
+---
+
+<section class="about-hero">
+  <WordReveal text={aboutHero.description} className="about-hero__text" client:load />
+  <img
+    class="about-hero__headshot"
+    src={aboutHero.headshot.src}
+    alt={aboutHero.headshot.alt}
+    width="350"
+    height="282"
+  />
+</section>
+
+<style is:global>
+  /* Global (not scoped) so the class on the React-rendered <p> is styled too. */
+  .about-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--scale-1000); /* 40px */
+    width: min(1280px, 100%);
+    margin: 0 auto;
+    padding: 60px;
+    background: var(--surface-secondary);
+    border-radius: 0 0 40px 40px; /* flush under the nav, rounded at the bottom */
+    overflow: hidden;
+  }
+
+  .about-hero__text {
+    flex: 1 1 auto;
+    max-width: 676px;
+    margin: 0;
+    font-family: var(--text-style-display-family);
+    font-weight: var(--text-style-display-weight);
+    font-style: var(--text-style-display-style);
+    font-size: var(--text-style-display-size);
+    line-height: var(--text-style-display-line-height);
+    color: var(--text-primary);
+  }
+
+  .about-hero__headshot {
+    flex: 0 0 auto;
+    width: 350px;
+    height: auto;
+  }
+
+  /* Stack on small screens: headshot on top, text below, both centered */
+  @media (max-width: 899px) {
+    .about-hero {
+      flex-direction: column-reverse;
+      align-items: center;
+      text-align: center;
+      gap: var(--scale-800); /* 32px */
+      padding: var(--scale-1000) var(--scale-600); /* 40px 24px */
+    }
+
+    .about-hero__headshot {
+      width: 220px;
+    }
+  }
+</style>
