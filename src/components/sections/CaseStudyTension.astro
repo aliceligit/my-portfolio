@@ -1,0 +1,143 @@
+---
+// "The Tension" — the first section under the case study hero.
+//
+// A grey card holding a small numbered eyebrow and a headline, then two columns:
+// the story on the left, and the three questions as white cards on the right.
+// All the words live in src/content/brightlineLoyalty.ts.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+import { brightlineTension } from "../../content/brightlineLoyalty";
+
+const { eyebrow, headline, intro, bullets, outro, questions } =
+  brightlineTension;
+---
+
+<section class="tension">
+  <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="564px" />
+
+  <div class="tension__columns">
+    <div class="tension__story">
+      {intro.map((paragraph) => <p>{paragraph}</p>)}
+      <ul class="tension__bullets">
+        {bullets.map((bullet) => <li>{bullet}</li>)}
+      </ul>
+      {outro.map((paragraph) => <p>{paragraph}</p>)}
+    </div>
+
+    <ol class="tension__questions">
+      {
+        questions.map((question) => (
+          <li class="tension__question">
+            <h3 class="tension__question-title">{question.title}</h3>
+            <p class="tension__question-text">{question.text}</p>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+</section>
+
+<style>
+  .tension {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px */
+    width: min(1280px, 100%);
+    margin: var(--scale-1000) auto 0; /* 40px below the hero */
+    padding: var(--scale-600);
+    background: var(--surface-secondary);
+    border-radius: var(--radius-m); /* 16px */
+    color: var(--text-primary);
+  }
+
+  /* ----- Two columns ----- */
+
+  .tension__columns {
+    display: flex;
+    gap: var(--spacing-l); /* 40px */
+    align-items: flex-start;
+  }
+
+  .tension__story,
+  .tension__questions {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  /* ----- Left: the story ----- */
+
+  .tension__story p {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* A blank line above and below the bullet list, as in the design */
+  .tension__bullets {
+    margin: var(--text-style-body-line-height) 0;
+    padding-left: var(--scale-700); /* 28px — room for the bullet */
+  }
+
+  .tension__bullets li {
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* ----- Right: the question cards ----- */
+
+  .tension__questions {
+    /* The numbers are drawn by CSS from each card's position in the list, so
+       adding or reordering a question renumbers them on its own. */
+    counter-reset: question;
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-400); /* 16px */
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .tension__question {
+    padding: var(--scale-300); /* 12px */
+    background: var(--surface-primary);
+    border-radius: var(--radius-s); /* 8px */
+    counter-increment: question;
+  }
+
+  .tension__question-title {
+    margin: 0;
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    font-size: var(--text-style-body-emphasized-size);
+    line-height: var(--text-style-body-emphasized-line-height);
+  }
+
+  .tension__question-title::before {
+    content: counter(question) ". ";
+  }
+
+  .tension__question-text {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* ----- Phones: one column ----- */
+
+  @media (max-width: 899px) {
+    .tension__columns {
+      flex-direction: column;
+      gap: var(--scale-600); /* 24px */
+    }
+
+    .tension__story,
+    .tension__questions {
+      width: 100%;
+    }
+  }
+</style>

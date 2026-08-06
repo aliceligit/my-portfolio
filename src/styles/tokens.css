@@ -22,7 +22,17 @@
   --color-grey-dark-grey: #554a3b;
   --color-grey-medium-grey: #75706a;
   --color-grey-light-grey: #f5f5f5;
+  --color-grey-placeholder: #d5d5d5;
   --color-grey-white: #ffffff;
+  --color-purple-light-purple: #f5f3ff;
+
+  /* Case study accents — the brand color of the project being shown */
+  --color-brightline-yellow: #ffdb00;
+
+  /* The two customer mindsets in the loyalty donut chart. Used for the
+     chart's tooltips so each one matches the slice it describes. */
+  --color-mindset-accumulator: #075041; /* green — point accumulators */
+  --color-mindset-partner: #d85a31; /* orange — partner-oriented */
 
   /* Hero pill gradient colors (each fades to white) */
   --color-pill-blue: #bfe9fd;
@@ -77,6 +87,8 @@
   --surface-secondary: var(--color-grey-light-grey);
   --surface-tertiary: var(--color-blue-light-blue);
   --surface-reverse: var(--color-grey-dark-grey);
+  /* Stand-in fill shown where a real image or video isn't in place yet */
+  --surface-placeholder: var(--color-grey-placeholder);
 
   /* Border colors */
   --border-primary: var(--color-grey-dark-grey);
@@ -86,8 +98,10 @@
 
   /* Border radii */
   --radius-none: var(--scale-0);
+  --radius-xs: var(--scale-100); /* 4px — small chips and tooltips */
   --radius-s: var(--scale-200);
   --radius-m: var(--scale-400);
+  --radius-l: var(--scale-1000); /* 40px — the big card corner used site-wide */
   --radius-rounded: var(--scale-1200);
 
   /* Spacing */
@@ -102,6 +116,10 @@
      --space-section-lg: larger gap    (80 / 60 / 40) */
   --space-section: 60px;
   --space-section-lg: 80px;
+
+  /* Gap above the hero card on case study pages. The overlay nav drops by the
+     same amount, so changing this keeps the header glued to the card's top. */
+  --space-hero-top: var(--scale-400); /* 16px */
 }
 
 
@@ -124,6 +142,13 @@
   --text-style-subtitle-size: 24px;
   --text-style-subtitle-line-height: 34px;
 
+  /* Subheadline — Figtree Medium 24px. The small title inside a section, one
+     step down from Headline. Same sizes as Subtitle, but heavier. */
+  --text-style-subheadline-family: var(--font-figtree);
+  --text-style-subheadline-weight: var(--weight-medium);
+  --text-style-subheadline-size: var(--text-style-subtitle-size);
+  --text-style-subheadline-line-height: normal;
+
   /* Footnote — Figtree Medium Italic 15px / 34px */
   --text-style-footnote-family: var(--font-figtree);
   --text-style-footnote-weight: var(--weight-medium);
@@ -136,6 +161,19 @@
   --text-style-body-weight: var(--weight-regular);
   --text-style-body-size: 20px;
   --text-style-body-line-height: 34px;
+
+  /* Headline — Figtree Medium 30px */
+  --text-style-headline-family: var(--font-figtree);
+  --text-style-headline-weight: var(--weight-medium);
+  --text-style-headline-size: 30px;
+  --text-style-headline-line-height: normal;
+
+  /* Body — Emphasized — Figtree Bold 20px / 34px.
+     Identical to Body but heavier, so it follows the same responsive sizes. */
+  --text-style-body-emphasized-family: var(--font-figtree);
+  --text-style-body-emphasized-weight: var(--weight-bold);
+  --text-style-body-emphasized-size: var(--text-style-body-size);
+  --text-style-body-emphasized-line-height: var(--text-style-body-line-height);
 
   /* Section Title — Jersey 10 64px. (Jersey 10 ships a single weight; Figma
      labels it ExtraBold but it renders at 400, like the hero name.) */
@@ -164,10 +202,12 @@
    The text-style sizes shrink on smaller screens. Defined once here so every
    element using these tokens updates automatically.
 
-     Breakpoint        Title  Subtitle  Footnote  Section Title  Display      Display 2
-     Desktop (>=1280)  40px   24px      15px      64px           40 / 60      32px   (defaults above)
-     Tablet (900-1279) 32px   20px      13px      48px           32 / 50      28px
-     Mobile (<900)     24px   16px      11px      32px           24 / 40      22px
+     Breakpoint        Title  Subtitle  Footnote  Section Title  Display      Display 2  Headline
+     Desktop (>=1280)  40px   24px      15px      64px           40 / 60      32px       30px   (defaults above)
+     Tablet (900-1279) 32px   20px      13px      48px           32 / 50      28px       26px
+     Mobile (<900)     24px   16px      11px      32px           24 / 40      22px       20px
+
+   Subheadline follows Subtitle's sizes, so it shrinks along with it.
 */
 
 @media (max-width: 1279px) {
@@ -181,6 +221,7 @@
     --text-style-display-size: 32px;
     --text-style-display-line-height: 50px;
     --text-style-display-2-size: 28px;
+    --text-style-headline-size: 26px;
     --space-section: 50px;
     --space-section-lg: 60px;
   }
@@ -197,6 +238,7 @@
     --text-style-display-size: 24px;
     --text-style-display-line-height: 40px;
     --text-style-display-2-size: 22px;
+    --text-style-headline-size: 20px;
     --space-section: 40px;
     --space-section-lg: 40px;
   }

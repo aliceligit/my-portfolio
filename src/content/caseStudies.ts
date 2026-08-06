@@ -9,6 +9,8 @@
 //              shown on screens narrower than 1280px.
 //   tags:      short labels shown above the title
 //   image:     leave empty ("") for now — dark-grey placeholder is shown instead
+//   href:      the page this card opens, e.g. "/brightline-loyalty". Leave it
+//              out and the card isn't clickable.
 
 export interface CaseStudy {
   variant: "wide" | "compact";
@@ -17,6 +19,7 @@ export interface CaseStudy {
   title: string;
   description: string;
   image: string;
+  href?: string;
 }
 
 export const caseStudies: CaseStudy[] = [
@@ -37,6 +40,7 @@ export const caseStudies: CaseStudy[] = [
     description:
       "Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
     image: "",
+    href: "/brightline-loyalty",
   },
   {
     variant: "compact",

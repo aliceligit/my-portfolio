@@ -1,0 +1,29 @@
+---
+// Case study: Brightline Loyalty Ecosystem — lives at /brightline-loyalty
+// Copy and slide settings come from src/content/brightlineLoyalty.ts.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CaseStudyHero from "../components/sections/CaseStudyHero.astro";
+import CaseStudyTension from "../components/sections/CaseStudyTension.astro";
+import CaseStudySequencing from "../components/sections/CaseStudySequencing.astro";
+import CaseStudyFriction from "../components/sections/CaseStudyFriction.astro";
+import CaseStudyValue from "../components/sections/CaseStudyValue.astro";
+import CaseStudyRedeeming from "../components/sections/CaseStudyRedeeming.astro";
+import CaseStudyDashboard from "../components/sections/CaseStudyDashboard.astro";
+import CaseStudyCampaign from "../components/sections/CaseStudyCampaign.astro";
+import { brightlineHero } from "../content/brightlineLoyalty";
+---
+
+<BaseLayout title="Brightline Loyalty Ecosystem — Alice Li" overlayNav>
+  <CaseStudyHero
+    title={brightlineHero.title}
+    slides={brightlineHero.slides}
+    facts={brightlineHero.facts}
+  />
+  <CaseStudyTension />
+  <CaseStudySequencing />
+  <CaseStudyFriction />
+  <CaseStudyValue />
+  <CaseStudyRedeeming />
+  <CaseStudyDashboard />
+  <CaseStudyCampaign />
+</BaseLayout>

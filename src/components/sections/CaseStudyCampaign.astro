@@ -1,0 +1,250 @@
+---
+// "Campaign System" — the seventh section of the case study.
+//
+// One grey card holding: the heading and an opening paragraph across the full
+// width, then two rows that alternate picture and words, then a white dividing
+// line, then the "Refer a Friend" story with one wide picture below it.
+//
+// The words and the pictures live in src/content/brightlineLoyalty.ts.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+import { brightlineCampaign } from "../../content/brightlineLoyalty";
+
+const { eyebrow, headline, intro, rows, referral } = brightlineCampaign;
+
+const isVideo = (file: string) => file.toLowerCase().endsWith(".mp4");
+
+// Splits a paragraph into plain and bold pieces. Anything the content file
+// wrapped in **two stars** lands on an odd position in this list, which is
+// what makes it bold below.
+const pieces = (paragraph: string) =>
+  paragraph
+    .split(/\*\*(.+?)\*\*/g)
+    .map((text, i) => ({ text, bold: i % 2 === 1 }));
+---
+
+<section class="campaign">
+  <CaseStudyHeading eyebrow={eyebrow} headline={headline} />
+
+  <p class="campaign__intro">
+    {pieces(intro).map((piece) => (piece.bold ? <strong>{piece.text}</strong> : piece.text))}
+  </p>
+
+  <!-- The two rows: a picture on one side, the story on the other -->
+  {
+    rows.map((row) => (
+      <div class:list={["campaign__row", `campaign__row--media-${row.mediaSide}`]}>
+        <div class="campaign__story">
+          <h3 class="campaign__subheadline">{row.title}</h3>
+          <div class="campaign__prose">
+            {row.paragraphs.map((paragraph) => (
+              <p>
+                {pieces(paragraph).map((piece) =>
+                  piece.bold ? <strong>{piece.text}</strong> : piece.text,
+                )}
+              </p>
+            ))}
+          </div>
+        </div>
+
+        <div class="campaign__figure">
+          {row.media &&
+            (isVideo(row.media) ? (
+              <video
+                class="campaign__media"
+                src={row.media}
+                loop
+                muted
+                playsinline
+                preload="metadata"
+              />
+            ) : (
+              <img
+                class="campaign__media"
+                src={row.media}
+                alt={row.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            ))}
+        </div>
+      </div>
+    ))
+  }
+
+  <hr class="campaign__rule" />
+
+  <!-- Refer a Friend: the story, then one picture across the full width -->
+  <div class="campaign__story">
+    <h3 class="campaign__subheadline">{referral.title}</h3>
+    <div class="campaign__prose">
+      {
+        referral.paragraphs.map((paragraph) => (
+          <p>
+            {pieces(paragraph).map((piece) =>
+              piece.bold ? <strong>{piece.text}</strong> : piece.text,
+            )}
+          </p>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="campaign__figure campaign__figure--wide">
+    {
+      referral.media &&
+        (isVideo(referral.media) ? (
+          <video
+            class="campaign__media"
+            src={referral.media}
+            loop
+            muted
+            playsinline
+            preload="metadata"
+          />
+        ) : (
+          <img
+            class="campaign__media"
+            src={referral.media}
+            alt={referral.alt}
+            loading="lazy"
+            decoding="async"
+          />
+        ))
+    }
+  </div>
+</section>
+
+<style>
+  .campaign {
+    width: min(1280px, 100%);
+    margin: var(--scale-1000) auto 0; /* 40px below the section above */
+    padding: var(--scale-600); /* 24px */
+    overflow: hidden; /* keeps the full-width dividing line inside the corners */
+    background: var(--surface-secondary);
+    border-radius: var(--radius-m); /* 16px */
+    color: var(--text-primary);
+  }
+
+  /* ----- The opening paragraph, across the full width ----- */
+
+  .campaign__intro {
+    margin: var(--scale-600) 0 0; /* 24px under the heading */
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* ----- The two rows ----- */
+
+  .campaign__row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-l); /* 40px */
+    align-items: start;
+    margin-top: var(--scale-1000); /* 40px under the paragraph above */
+  }
+
+  /* The second row sits further from the first, as in the design */
+  .campaign__row + .campaign__row {
+    margin-top: var(--scale-1100); /* 80px */
+  }
+
+  /* Which side the picture takes. The words are always first in the page's
+     reading order, so they also come first when the row stacks on a phone. */
+  .campaign__row--media-left .campaign__figure {
+    order: -1;
+  }
+
+  /* ----- The words in a row, and under the dividing line ----- */
+
+  .campaign__story {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-400); /* 16px under the small title */
+    min-width: 0;
+  }
+
+  .campaign__subheadline {
+    margin: 0;
+    font-family: var(--text-style-subheadline-family);
+    font-weight: var(--text-style-subheadline-weight);
+    font-size: var(--text-style-subheadline-size);
+    line-height: var(--text-style-subheadline-line-height);
+  }
+
+  .campaign__prose {
+    display: flex;
+    flex-direction: column;
+    /* A blank line between paragraphs, as in the design */
+    gap: var(--text-style-body-line-height);
+  }
+
+  .campaign__prose p {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* The phrases wrapped in **stars** in the content file */
+  .campaign__intro strong,
+  .campaign__prose strong {
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+  }
+
+  /* ----- The pictures ----- */
+
+  .campaign__figure {
+    aspect-ratio: 589 / 453;
+    overflow: hidden;
+    background: var(--surface-primary);
+    border-radius: var(--radius-m); /* 16px */
+  }
+
+  /* The wide one under Refer a Friend */
+  .campaign__figure--wide {
+    aspect-ratio: 1232 / 466;
+    margin-top: var(--scale-600); /* 24px under the story */
+  }
+
+  .campaign__media {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ----- The white line between the rows and Refer a Friend -----
+     It runs the full width of the card, past the 24px padding, so the negative
+     margins pull it out to the edges. */
+
+  .campaign__rule {
+    height: var(--scale-100); /* 4px */
+    margin: var(--scale-1000) calc(var(--scale-600) * -1) var(--scale-600); /* 40px above, 24px below */
+    border: 0;
+    background: var(--border-reverse);
+  }
+
+  /* ----- Phones: every row stacks, picture under its words ----- */
+
+  @media (max-width: 899px) {
+    .campaign__row,
+    .campaign__row + .campaign__row {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--scale-600); /* 24px */
+      margin-top: var(--scale-600);
+    }
+
+    /* Stacked, the picture always follows the words */
+    .campaign__row--media-left .campaign__figure {
+      order: 0;
+    }
+
+    .campaign__rule {
+      margin-top: var(--scale-600);
+    }
+  }
+</style>

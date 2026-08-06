@@ -1,0 +1,462 @@
+---
+// "Reducing Friction in Program Opt-in" — the third section of the case study.
+//
+// Two cards side by side. On the left: the heading, the story, and the four
+// options as a numbered list. On the right: a dark card showing the picture for
+// whichever option is chosen, with its three ratings along the bottom.
+//
+// Clicking an option — or the arrow button, which steps to the next one — swaps
+// what the right card shows. All four options are rendered into the page and
+// hidden until picked, so the swap is instant and works without any data being
+// passed to the browser.
+//
+// The words, pictures and ratings live in src/content/brightlineLoyalty.ts.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+import { brightlineFriction } from "../../content/brightlineLoyalty";
+import type { Rating } from "../../content/brightlineLoyalty";
+
+const { eyebrow, headline, intro, options } = brightlineFriction;
+
+// How many of the three dots are filled in for each rating.
+const dotsFor = (rating: Rating) =>
+  ({ low: 1, medium: 2, high: 3 })[rating as "low" | "medium" | "high"] ?? 0;
+
+const ratingsOf = (option: (typeof options)[number]) => [
+  { label: "Friction", value: option.friction },
+  { label: "Motivation", value: option.motivation },
+  { label: "Tech effort", value: option.techEffort },
+];
+
+const isVideo = (file: string) => file.toLowerCase().endsWith(".mp4");
+---
+
+<section class="friction">
+  <!-- Left card: heading, story, and the four options -->
+  <div class="friction__brief">
+    <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="612px" />
+    <p class="friction__intro">{intro}</p>
+
+    <ol class="friction__options">
+      {
+        options.map((option, i) => (
+          <li>
+            <button
+              type="button"
+              class="friction__option"
+              data-option={i}
+              aria-pressed={i === 0}
+              aria-controls={`friction-panel-${i}`}
+            >
+              {i + 1}. {option.label}
+            </button>
+          </li>
+        ))
+      }
+    </ol>
+  </div>
+
+  <!-- Right card: the chosen option's picture and ratings -->
+  <div class="friction__viewer">
+    <div class="friction__stage">
+      {
+        options.map((option, i) => (
+          <div
+            class="friction__panel"
+            id={`friction-panel-${i}`}
+            data-panel={i}
+            hidden={i !== 0}
+          >
+            {option.media &&
+              (isVideo(option.media) ? (
+                <video
+                  class="friction__media"
+                  src={option.media}
+                  loop
+                  muted
+                  playsinline
+                  preload="metadata"
+                />
+              ) : (
+                <img
+                  class="friction__media"
+                  src={option.media}
+                  alt={option.alt}
+                  loading="lazy"
+                  decoding="async"
+                />
+              ))}
+          </div>
+        ))
+      }
+    </div>
+
+    <div class="friction__bar">
+      <div class="friction__ratings">
+        {
+          options.map((option, i) => (
+            <div class="friction__rating-set" data-ratings={i} hidden={i !== 0}>
+              {ratingsOf(option).map((rating) => (
+                <div class="friction__rating">
+                  <p class="friction__rating-label">{rating.label}</p>
+                  <div class="friction__rating-value">
+                    <span>{rating.value || "—"}</span>
+                    <span class="friction__dots" aria-hidden="true">
+                      {[1, 2, 3].map((dot) => (
+                        <span
+                          class:list={[
+                            "friction__dot",
+                            { "is-on": dot <= dotsFor(rating.value) },
+                          ]}
+                        />
+                      ))}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="friction__nav">
+        <p class="friction__counter">
+          <span data-counter>1</span>/{options.length}
+        </p>
+
+        <button
+          type="button"
+          class="friction__next"
+          aria-label="Show the next option"
+        >
+          <img src="/images/arrow-down-circle.svg" alt="" width="40" height="40" />
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Swap which option the right-hand card is showing.
+  document.querySelectorAll<HTMLElement>(".friction").forEach((section) => {
+    const buttons = [...section.querySelectorAll<HTMLButtonElement>("[data-option]")];
+    const panels = [...section.querySelectorAll<HTMLElement>("[data-panel]")];
+    const ratings = [...section.querySelectorAll<HTMLElement>("[data-ratings]")];
+    const counter = section.querySelector<HTMLElement>("[data-counter]");
+    const next = section.querySelector<HTMLButtonElement>(".friction__next");
+    let current = 0;
+
+    const show = (index: number) => {
+      current = (index + buttons.length) % buttons.length;
+
+      buttons.forEach((button, i) =>
+        button.setAttribute("aria-pressed", String(i === current)),
+      );
+      panels.forEach((panel, i) => (panel.hidden = i !== current));
+      ratings.forEach((set, i) => (set.hidden = i !== current));
+      if (counter) counter.textContent = String(current + 1);
+
+      // Play the chosen video from the start; leave the others paused.
+      panels.forEach((panel, i) => {
+        const video = panel.querySelector("video");
+        if (!video) return;
+        if (i === current) {
+          video.currentTime = 0;
+          void video.play().catch(() => {
+            /* Some browsers block autoplay — the first frame stays up. */
+          });
+        } else {
+          video.pause();
+        }
+      });
+    };
+
+    buttons.forEach((button, i) => button.addEventListener("click", () => show(i)));
+    next?.addEventListener("click", () => show(current + 1));
+  });
+</script>
+
+<style>
+  /* Options that aren't showing are marked `hidden`. A `display` of our own
+     would otherwise override that and they'd all show at once. */
+  [hidden] {
+    display: none !important;
+  }
+
+  .friction {
+    /* Grid, not flex: the two cards keep the design's 661 : 588 proportions at
+       any width. (With flex, the left card's padding would be added on top of
+       its share and make it too wide.) */
+    display: grid;
+    grid-template-columns: minmax(0, 661fr) minmax(0, 588fr);
+    gap: var(--scale-800); /* 32px */
+    align-items: stretch;
+    width: min(1280px, 100%);
+    margin: var(--scale-1000) auto 0; /* 40px below the section above */
+  }
+
+  /* ----- Left card ----- */
+
+  .friction__brief {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    padding: var(--scale-600); /* 24px */
+    background: var(--surface-secondary);
+    border-radius: var(--radius-m); /* 16px */
+    color: var(--text-primary);
+  }
+
+  .friction__intro {
+    margin: var(--scale-600) 0 0; /* 24px under the heading */
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* The list sits against the bottom of the card, as in the design */
+  .friction__options {
+    margin: var(--scale-1000) 0 0;
+    padding: 0;
+    list-style: none;
+    margin-top: auto;
+  }
+
+  .friction__option {
+    display: block;
+    width: 100%;
+    padding: var(--scale-200) 0; /* 8px above and below */
+    border: 0;
+    background: none;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-secondary);
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .friction__options li + li .friction__option {
+    border-top: var(--scale-25) solid var(--border-secondary);
+  }
+
+  .friction__option:hover {
+    color: var(--text-primary);
+  }
+
+  /* The chosen one */
+  .friction__option[aria-pressed="true"] {
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    color: var(--text-primary);
+    cursor: default;
+  }
+
+  /* ----- Right card ----- */
+
+  .friction__viewer {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--surface-reverse);
+    border-radius: var(--radius-m); /* 16px */
+  }
+
+  /* Where the picture or video goes */
+  .friction__stage {
+    position: relative;
+    aspect-ratio: 588 / 575;
+    background: var(--surface-secondary);
+    border-radius: 0 0 var(--radius-m) var(--radius-m);
+    overflow: hidden;
+  }
+
+  .friction__panel,
+  .friction__media {
+    width: 100%;
+    height: 100%;
+  }
+
+  .friction__media {
+    display: block;
+    object-fit: cover;
+  }
+
+  /* ----- The ratings bar along the bottom ----- */
+
+  .friction__bar {
+    display: flex;
+    flex: 1 0 auto;
+    gap: var(--scale-400); /* 16px */
+    align-items: center;
+    min-height: 98px;
+    padding: 0 var(--scale-600); /* 24px */
+    color: var(--text-on-action);
+  }
+
+  .friction__ratings {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .friction__rating-set {
+    display: flex;
+    gap: var(--scale-400); /* 16px */
+    align-items: center;
+  }
+
+  .friction__rating {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-100); /* 4px between the label and its value */
+  }
+
+  /* A short hairline between each rating, centred on the row */
+  .friction__rating + .friction__rating {
+    position: relative;
+    padding-left: var(--scale-400); /* 16px */
+  }
+
+  .friction__rating + .friction__rating::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: var(--scale-25); /* 1px */
+    height: var(--scale-800); /* 32px */
+    background: var(--border-reverse);
+    transform: translateY(-50%);
+  }
+
+  .friction__rating-label,
+  .friction__rating-value {
+    margin: 0;
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-style: var(--text-style-footnote-style);
+    font-size: var(--text-style-footnote-size);
+    line-height: normal;
+    white-space: nowrap;
+  }
+
+  .friction__rating-value {
+    display: flex;
+    gap: var(--scale-200); /* 8px */
+    align-items: center;
+  }
+
+  /* Three dots; the rating fills 1, 2 or 3 of them */
+  .friction__dots {
+    display: flex;
+    gap: var(--scale-100); /* 4px */
+    align-items: center;
+  }
+
+  .friction__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--text-on-action) 35%, transparent);
+  }
+
+  .friction__dot.is-on {
+    background: var(--text-on-action);
+  }
+
+  /* The counter and the arrow travel together, so they never split across
+     two lines when the bar gets tight. */
+  .friction__nav {
+    display: flex;
+    gap: var(--scale-400); /* 16px */
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .friction__counter {
+    margin: 0;
+    font-family: var(--text-style-headline-family);
+    font-weight: var(--text-style-headline-weight);
+    font-size: var(--text-style-headline-size); /* 30px */
+    line-height: normal;
+    white-space: nowrap;
+  }
+
+  .friction__next {
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    line-height: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .friction__next:hover {
+    transform: translateY(2px);
+  }
+
+  .friction__next img {
+    display: block;
+    width: 40px;
+    height: 40px;
+  }
+
+  /* ----- Phones -----
+     Everything moves into one grey card, in this order: heading, story, the
+     dark viewer, then the options list. */
+  @media (max-width: 899px) {
+    .friction {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--scale-600); /* 24px */
+      padding: var(--scale-600);
+      background: var(--surface-secondary);
+      border-radius: var(--radius-m); /* 16px */
+    }
+
+    /* The left card stops being a card of its own: its heading, story and
+       options become items of the section's grid, so the viewer can slot in
+       between the story and the options. */
+    .friction__brief {
+      display: contents;
+    }
+
+    .friction__viewer {
+      order: 2;
+    }
+
+    .friction__options {
+      order: 3;
+      margin-top: 0;
+    }
+
+    .friction__intro {
+      margin-top: 0; /* the grid gap already spaces it */
+    }
+
+    /* The picture sits on white here, not grey */
+    .friction__stage {
+      background: var(--surface-primary);
+    }
+
+    .friction__bar {
+      flex-wrap: wrap;
+      gap: var(--scale-300);
+      min-height: 76px;
+      padding: var(--scale-300) var(--scale-600);
+    }
+
+    .friction__rating-set {
+      gap: var(--scale-300);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .friction__option,
+    .friction__next {
+      transition: none;
+    }
+  }
+</style>

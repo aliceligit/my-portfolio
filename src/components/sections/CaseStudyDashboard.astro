@@ -1,0 +1,139 @@
+---
+// "Dashboard" — the sixth section of the case study.
+//
+// One grey card: the heading and the story on the left, one picture on the
+// right. The words and the picture live in src/content/brightlineLoyalty.ts.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+import { brightlineDashboard } from "../../content/brightlineLoyalty";
+
+const { eyebrow, headline, paragraphs, media, alt } = brightlineDashboard;
+
+const isVideo = (file: string) => file.toLowerCase().endsWith(".mp4");
+
+// Splits a paragraph into plain and bold pieces. Anything the content file
+// wrapped in **two stars** lands on an odd position in this list, which is
+// what makes it bold below.
+const pieces = (paragraph: string) =>
+  paragraph
+    .split(/\*\*(.+?)\*\*/g)
+    .map((text, i) => ({ text, bold: i % 2 === 1 }));
+---
+
+<section class="dashboard">
+  <div class="dashboard__story">
+    <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="593px" />
+    <div class="dashboard__prose">
+      {
+        paragraphs.map((paragraph) => (
+          <p>
+            {pieces(paragraph).map((piece) =>
+              piece.bold ? <strong>{piece.text}</strong> : piece.text,
+            )}
+          </p>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="dashboard__figure">
+    {
+      media &&
+        (isVideo(media) ? (
+          <video
+            class="dashboard__media"
+            src={media}
+            loop
+            muted
+            playsinline
+            preload="metadata"
+          />
+        ) : (
+          <img
+            class="dashboard__media"
+            src={media}
+            alt={alt}
+            loading="lazy"
+            decoding="async"
+          />
+        ))
+    }
+  </div>
+</section>
+
+<style>
+  .dashboard {
+    /* Grid, not flex: the two halves keep the design's 639 : 554 proportions
+       at any width — the same split as the sections above. */
+    display: grid;
+    grid-template-columns: minmax(0, 639fr) minmax(0, 553fr);
+    gap: var(--spacing-l); /* 40px */
+    align-items: start;
+    width: min(1280px, 100%);
+    margin: var(--scale-1000) auto 0; /* 40px below the section above */
+    padding: var(--scale-600); /* 24px */
+    background: var(--surface-secondary);
+    border-radius: var(--radius-m); /* 16px */
+    color: var(--text-primary);
+  }
+
+  /* ----- Left: the story ----- */
+
+  .dashboard__story {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px under the heading */
+    min-width: 0;
+  }
+
+  .dashboard__prose {
+    display: flex;
+    flex-direction: column;
+    /* A blank line between the two paragraphs, as in the design */
+    gap: var(--text-style-body-line-height);
+  }
+
+  .dashboard__prose p {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* The phrases wrapped in **stars** in the content file */
+  .dashboard__prose strong {
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+  }
+
+  /* ----- Right: the picture ----- */
+
+  .dashboard__figure {
+    aspect-ratio: 554 / 422;
+    overflow: hidden;
+    background: var(--surface-primary);
+    border-radius: var(--radius-m); /* 16px */
+    /* Nudged down so the card starts level with the headline, as designed */
+    margin-top: var(--scale-1000); /* 40px */
+  }
+
+  .dashboard__media {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ----- Phones: the picture drops below the story ----- */
+
+  @media (max-width: 899px) {
+    .dashboard {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--scale-600); /* 24px */
+    }
+
+    .dashboard__figure {
+      margin-top: 0; /* the grid gap already spaces it */
+    }
+  }
+</style>
