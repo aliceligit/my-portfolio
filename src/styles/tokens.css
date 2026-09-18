@@ -142,10 +142,10 @@
   --text-style-subtitle-size: 24px;
   --text-style-subtitle-line-height: 34px;
 
-  /* Subheadline — Figtree Medium 24px. The small title inside a section, one
+  /* Subheadline — Figtree Bold 24px. The small title inside a section, one
      step down from Headline. Same sizes as Subtitle, but heavier. */
   --text-style-subheadline-family: var(--font-figtree);
-  --text-style-subheadline-weight: var(--weight-medium);
+  --text-style-subheadline-weight: var(--weight-bold);
   --text-style-subheadline-size: var(--text-style-subtitle-size);
   --text-style-subheadline-line-height: normal;
 
@@ -156,10 +156,10 @@
   --text-style-footnote-line-height: 34px;
   --text-style-footnote-style: italic;
 
-  /* Body — Figtree Regular 20px / 34px */
+  /* Body — Figtree Regular 18px / 34px */
   --text-style-body-family: var(--font-figtree);
   --text-style-body-weight: var(--weight-regular);
-  --text-style-body-size: 20px;
+  --text-style-body-size: 18px;
   --text-style-body-line-height: 34px;
 
   /* Headline — Figtree Medium 30px */
@@ -168,7 +168,7 @@
   --text-style-headline-size: 30px;
   --text-style-headline-line-height: normal;
 
-  /* Body — Emphasized — Figtree Bold 20px / 34px.
+  /* Body — Emphasized — Figtree Bold 18px / 34px.
      Identical to Body but heavier, so it follows the same responsive sizes. */
   --text-style-body-emphasized-family: var(--font-figtree);
   --text-style-body-emphasized-weight: var(--weight-bold);
@@ -208,6 +208,9 @@
      Mobile (<900)     24px   16px      11px      32px           24 / 40      22px       20px
 
    Subheadline follows Subtitle's sizes, so it shrinks along with it.
+
+   Body is 18 / 16 / 15 (line height 34 / 26 / 20). Body — Emphasized is the
+   same size as Body at every width, just bolder.
 */
 
 @media (max-width: 1279px) {
@@ -215,7 +218,7 @@
     --text-style-title-size: 32px;
     --text-style-subtitle-size: 20px;
     --text-style-footnote-size: 13px;
-    --text-style-body-size: 18px;
+    --text-style-body-size: 16px;
     --text-style-body-line-height: 26px;
     --text-style-section-title-size: 48px;
     --text-style-display-size: 32px;

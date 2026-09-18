@@ -62,5 +62,10 @@ const {
     font-family: var(--font-body), sans-serif;
     color: var(--text-primary);
     background-color: var(--surface-primary);
+    /* Draw text the way Figma does. Without these, Mac browsers thicken every
+       letter slightly (subpixel smoothing), so the site looks heavier than the
+       design even at the same font weight. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 </style>
