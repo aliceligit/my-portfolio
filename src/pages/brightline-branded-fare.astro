@@ -1,0 +1,16 @@
+---
+// Case study: Brightline Branded Fares — lives at /brightline-branded-fare
+// Copy and images come from src/content/brightlineBrandedFare.ts.
+import BaseLayout from "../layouts/BaseLayout.astro";
+import CaseStudyHeroScene from "../components/sections/CaseStudyHeroScene.astro";
+import { brandedFareHero } from "../content/brightlineBrandedFare";
+---
+
+<BaseLayout title="Brightline Branded Fares — Alice Li" overlayNav>
+  <CaseStudyHeroScene
+    title={brandedFareHero.title}
+    scene={brandedFareHero.scene}
+    screens={brandedFareHero.screens}
+    facts={brandedFareHero.facts}
+  />
+</BaseLayout>

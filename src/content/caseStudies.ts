@@ -27,16 +27,17 @@ export const caseStudies: CaseStudy[] = [
     variant: "wide",
     imageSide: "left",
     tags: ["Tag 1", "Tag 2", "Tag 3"],
-    title: "Case Study Title",
+    title: "Brightline Branded Fares",
     description:
       "Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
     image: "",
+    href: "/brightline-branded-fare",
   },
   {
     variant: "wide",
     imageSide: "right",
     tags: ["Tag 1", "Tag 2", "Tag 3"],
-    title: "Case Study Title",
+    title: "Brightline Loyalty Ecosystem",
     description:
       "Description: Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis. Class aptent taciti sociosqu ad litora torquent per conubia nostra, per inceptos himenaeos.",
     image: "",

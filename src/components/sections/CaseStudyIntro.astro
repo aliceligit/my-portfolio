@@ -1,0 +1,100 @@
+---
+// CaseStudyIntro — the block that sits under a case study's hero image:
+// the project title, a thin dividing line, and the ROLE / TIMELINE / TEAM /
+// PLATFORM details.
+//
+// The text and details come from the case study's file in src/content/.
+
+interface Fact {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  title: string;
+  facts: Fact[];
+}
+
+const { title, facts } = Astro.props;
+---
+
+<div class="cs-intro">
+  <h1 class="cs-intro__title">{title}</h1>
+  <hr class="cs-intro__rule" />
+  <dl class="cs-intro__facts">
+    {
+      facts.map((fact) => (
+        <div class="cs-intro__fact">
+          <dt class="cs-intro__fact-label">{fact.label}</dt>
+          <dd class="cs-intro__fact-value">{fact.value}</dd>
+        </div>
+      ))
+    }
+  </dl>
+</div>
+
+<style>
+  .cs-intro {
+    padding: var(--space-section) 0 var(--scale-800);
+  }
+
+  .cs-intro__title {
+    margin: 0;
+    font-family: var(--text-style-title-family);
+    font-weight: var(--text-style-title-weight);
+    font-size: var(--text-style-title-size);
+    line-height: var(--text-style-title-line-height);
+    color: var(--text-primary);
+    text-align: center;
+  }
+
+  /* The line runs 1050px wide in the design, narrowing with the page below that */
+  .cs-intro__rule {
+    width: min(1050px, 100%);
+    margin: var(--spacing-l) auto 0;
+    border: 0;
+    border-top: var(--scale-25) solid var(--border-secondary);
+  }
+
+  .cs-intro__facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-l); /* 40px between columns */
+    margin: var(--scale-500) 0 0; /* 20px under the line */
+  }
+
+  .cs-intro__fact-label {
+    margin: 0 0 var(--spacing-s); /* 4px */
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-style: var(--text-style-footnote-style);
+    font-size: var(--text-style-footnote-size);
+    color: var(--text-secondary);
+  }
+
+  .cs-intro__fact-value {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-primary);
+  }
+
+  /* ----- Phones -----
+     Keep the text clear of the screen edges, and stack the four details one per
+     row instead of letting them wrap into a ragged block. */
+  @media (max-width: 899px) {
+    .cs-intro {
+      padding-right: var(--scale-600); /* 24px */
+      padding-left: var(--scale-600);
+    }
+
+    .cs-intro__facts {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--scale-500); /* 20px */
+    }
+  }
+</style>

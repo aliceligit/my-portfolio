@@ -1,0 +1,135 @@
+---
+// CaseStudyHeroScene — a case study hero built from a photo rather than a
+// slider: a wide rounded card holding a photo of a laptop and a phone, with the
+// designed screens laid over their blank displays. The title and details sit
+// underneath (CaseStudyIntro).
+//
+// Everything inside the card is sized in `cqw` — "percent of the card's own
+// width" — so the whole composition shrinks as one piece on smaller screens,
+// exactly like the Figma frame. The numbers in the comments are the pixel
+// values from Figma at the 1280px design width.
+import CaseStudyIntro from "./CaseStudyIntro.astro";
+
+interface Screen {
+  name: string;
+  image: string;
+  mask: string;
+  alt: string;
+}
+
+interface Fact {
+  label: string;
+  value: string;
+}
+
+interface Props {
+  title: string;
+  scene: string;
+  screens: Screen[];
+  facts: Fact[];
+}
+
+const { title, scene, screens, facts } = Astro.props;
+
+const desktop = screens.find((s) => s.name === "desktop");
+const mobile = screens.find((s) => s.name === "mobile");
+---
+
+<section class="fare-hero">
+  <div class="fare-hero__card">
+    <img class="fare-hero__scene" src={scene} alt="" />
+
+    {
+      desktop && (
+        <img
+          class="fare-hero__screen fare-hero__screen--desktop"
+          src={desktop.image}
+          alt={desktop.alt}
+          style={`--mask: url("${desktop.mask}")`}
+        />
+      )
+    }
+
+    {
+      mobile && (
+        <img
+          class="fare-hero__screen fare-hero__screen--mobile"
+          src={mobile.image}
+          alt={mobile.alt}
+          style={`--mask: url("${mobile.mask}")`}
+        />
+      )
+    }
+  </div>
+
+  <CaseStudyIntro title={title} facts={facts} />
+</section>
+
+<style>
+  .fare-hero {
+    /* The card's width is the yardstick for every `cqw` value below. */
+    container-type: inline-size;
+    width: min(1280px, 100%);
+    /* The gap above is shared with the overlay nav's drop, so the header lines
+       up with the top of the card. Change it in tokens.css. */
+    margin: var(--space-hero-top) auto 0;
+  }
+
+  /* ----- The card ----- */
+
+  .fare-hero__card {
+    position: relative;
+    /* Same shape as the Figma frame: 1280 wide by 781 tall. Keeping it as a
+       ratio means the photo never crops as the page narrows. */
+    aspect-ratio: 1280 / 781;
+    overflow: hidden;
+    border-radius: var(--scale-400); /* 16px */
+    background: var(--surface-placeholder);
+  }
+
+  /* The photo sits a touch wider than the card and hangs off the left edge,
+     exactly as it does in Figma. */
+  .fare-hero__scene {
+    position: absolute;
+    top: 0;
+    left: -1.299cqw; /* -16.62px */
+    width: 102.597cqw; /* 1313.24px */
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ----- The designs laid over the screens -----
+     Each one is placed over its screen in the photo, then trimmed to that
+     screen's exact outline by its mask file. */
+
+  .fare-hero__screen {
+    position: absolute;
+    object-fit: cover;
+    -webkit-mask-image: var(--mask);
+    mask-image: var(--mask);
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+  }
+
+  .fare-hero__screen--desktop {
+    left: 21.968cqw; /* 281.19px */
+    top: 9.971cqw; /* 127.63px */
+    width: 52.065cqw; /* 666.43px */
+    height: 32.602cqw; /* 417.31px */
+    -webkit-mask-size: 51.905cqw 32.506cqw; /* 664.38 x 416.08px */
+    mask-size: 51.905cqw 32.506cqw;
+    -webkit-mask-position: 0.019cqw 0.077cqw; /* 0.24 x 0.99px */
+    mask-position: 0.019cqw 0.077cqw;
+  }
+
+  .fare-hero__screen--mobile {
+    left: 75.141cqw; /* 961.80px */
+    top: 22.346cqw; /* 286.03px */
+    width: 13.677cqw; /* 175.07px */
+    height: 26.535cqw; /* 339.64px */
+    -webkit-mask-size: 13.538cqw 26.379cqw; /* 173.29 x 337.65px */
+    mask-size: 13.538cqw 26.379cqw;
+    -webkit-mask-position: 0.102cqw 0.025cqw; /* 1.31 x 0.32px */
+    mask-position: 0.102cqw 0.025cqw;
+  }
+</style>
