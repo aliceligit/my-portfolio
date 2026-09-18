@@ -222,7 +222,7 @@ export const brandedFareExploration = {
   eyebrow: "4. Design Exploration",
 
   headline:
-    "Initially, the business leaned toward a new fare family. From there, my exploration focused on two questions: how clearly each fare communicates its value, and how the selection flow itself guides the decision .",
+    "Initially, the business leaned toward a new fare family. From there, my exploration focused on two questions: how clearly each fare communicates its value, and how the selection flow itself guides the decision.",
 
   options: [
     {
