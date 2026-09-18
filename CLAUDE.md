@@ -120,3 +120,6 @@ Why each part matters:
 - `npm run dev` — start local dev server
 - `npm run build` — build for production
 - `npm run preview` — preview production build locally
+- `python3 scripts/prepare-gifs.py` — run after adding or replacing a case study
+  GIF. Fixes stuck last frames left by the export tool and regenerates the
+  `-still.gif` companions the slider shows on its side slides.

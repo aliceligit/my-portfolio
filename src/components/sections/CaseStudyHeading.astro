@@ -1,0 +1,45 @@
+---
+// The small numbered eyebrow and headline that opens each case study section.
+// Used by every "1. ...", "2. ..." section on a case study page.
+interface Props {
+  eyebrow: string;
+  headline: string;
+  // How wide the headline is allowed to run before wrapping. Each section sets
+  // its own, matching the design.
+  maxWidth?: string;
+}
+
+const { eyebrow, headline, maxWidth = "100%" } = Astro.props;
+---
+
+<header class="cs-heading" style={`max-width: ${maxWidth}`}>
+  <p class="cs-heading__eyebrow">{eyebrow}</p>
+  <h2 class="cs-heading__headline">{headline}</h2>
+</header>
+
+<style>
+  .cs-heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-200); /* 8px */
+    color: var(--text-primary);
+  }
+
+  .cs-heading__eyebrow {
+    margin: 0;
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-style: var(--text-style-footnote-style);
+    font-size: var(--text-style-footnote-size);
+    line-height: normal;
+  }
+
+  /* Set in the Subheadline style (Figtree Medium 24px) */
+  .cs-heading__headline {
+    margin: 0;
+    font-family: var(--text-style-subheadline-family);
+    font-weight: var(--text-style-subheadline-weight);
+    font-size: var(--text-style-subheadline-size);
+    line-height: var(--text-style-subheadline-line-height);
+  }
+</style>

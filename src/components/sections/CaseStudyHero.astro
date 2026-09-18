@@ -1,0 +1,324 @@
+---
+// CaseStudyHero — the top of a case study page.
+//
+// A big rounded card holding the video slider (HeroSlider), then the project
+// title, a divider, and the ROLE / TIMELINE / TEAM / PLATFORM details.
+//
+// Everything inside the card is sized in `cqw` — "percent of the card's own
+// width" — so the whole composition shrinks as one piece on smaller screens,
+// exactly like the Figma frame. The numbers in the comments are the pixel
+// values from Figma at the 1280px design width.
+import HeroSlider from "../animations/HeroSlider.tsx";
+import type { HeroSlide, CaseStudyFact } from "../../content/brightlineLoyalty";
+
+interface Props {
+  title: string;
+  slides: HeroSlide[];
+  facts: CaseStudyFact[];
+}
+
+const { title, slides, facts } = Astro.props;
+---
+
+<section class="cs-hero">
+  <div class="cs-hero__card">
+    <HeroSlider slides={slides} client:load />
+  </div>
+
+  <div class="cs-hero__intro">
+    <h1 class="cs-hero__title">{title}</h1>
+    <hr class="cs-hero__rule" />
+    <dl class="cs-hero__facts">
+      {
+        facts.map((fact) => (
+          <div class="cs-hero__fact">
+            <dt class="cs-hero__fact-label">{fact.label}</dt>
+            <dd class="cs-hero__fact-value">{fact.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style is:global>
+  /* Global (not scoped) so the classes on the React-rendered slider are styled
+     too. */
+
+  .cs-hero {
+    /* The card's width is the yardstick for every `cqw` value below. */
+    container-type: inline-size;
+    width: min(1280px, 100%);
+    /* The gap above is shared with the overlay nav's drop, so the header lines
+       up with the top of the card. Change it in tokens.css. */
+    margin: var(--space-hero-top) auto 0;
+  }
+
+  /* ----- The card ----- */
+
+  .cs-hero__card {
+    overflow: hidden;
+    border-radius: var(--scale-600); /* 24px */
+    /* A 20% black veil over a blue → lilac fade (straight from Figma) */
+    background:
+      linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),
+      linear-gradient(
+        180deg,
+        var(--color-blue-light-blue),
+        var(--color-purple-light-purple)
+      );
+  }
+
+  /* ----- Slider ----- */
+
+  .slider {
+    /* Sizes of the slider's parts, as a percentage of the card's width.
+       Change these to make the slides bigger, smaller, or further apart. */
+    --slide-width: 56.17cqw; /* 719px — the middle slide */
+    --slide-height: 44.92cqw; /* 575px */
+    --peek-width: 48.62cqw; /* 622px — the slides either side */
+    --peek-height: 42.04cqw; /* 538px */
+    --slide-gap: 62.19cqw; /* 796px between slide centers */
+    --dot-size: 3.09cqw; /* 40px */
+    --track-width: 81.33cqw; /* 1041px */
+
+    padding-top: 6.25cqw; /* 80px above the slides */
+    /* Room under the dots for the label, plus the 16px bottom edge */
+    padding-bottom: calc(var(--text-style-body-line-height) + 1.53cqw);
+  }
+
+  .slider__stage {
+    position: relative;
+    height: var(--slide-height);
+  }
+
+  .slider__slide {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--peek-width);
+    height: var(--peek-height);
+    overflow: hidden;
+    border-radius: 2.92cqw; /* 37px */
+    opacity: 0.5;
+    /* --offset (set by HeroSlider) is how many places this slide is from the
+       middle: 0 is centered, -1 is one to the left, 1 one to the right. */
+    transform: translate(-50%, -50%)
+      translateX(calc(var(--offset) * var(--slide-gap)));
+    transition:
+      width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+      height 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+      transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1),
+      opacity 0.6s ease;
+  }
+
+  .slider__slide.is-active {
+    width: var(--slide-width);
+    height: var(--slide-height);
+    border-radius: 3.125cqw; /* 40px */
+    opacity: 1;
+  }
+
+  /* The slide's video or GIF */
+  .slider__media {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* The animation for the middle slide, laid over that slide's still frame */
+  .slider__media--playing {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Shown until a real video is added in brightlineLoyalty.ts */
+  .slider__placeholder {
+    width: 100%;
+    height: 100%;
+    background: var(--surface-placeholder);
+  }
+
+  .slider__slide.is-active .slider__placeholder {
+    background: var(--surface-tertiary);
+  }
+
+  /* ----- Dots ----- */
+
+  .slider__track {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: var(--track-width);
+    margin: 2.58cqw auto 0; /* 33px below the slides */
+  }
+
+  /* The line the dots sit on */
+  .slider__track::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    height: var(--scale-50); /* 2px */
+    background: var(--border-reverse);
+    transform: translateY(-50%);
+  }
+
+  .slider__dot {
+    position: relative;
+    width: var(--dot-size);
+    height: var(--dot-size);
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: var(--surface-primary);
+    cursor: pointer;
+    transition:
+      background 0.3s ease,
+      transform 0.3s ease;
+  }
+
+  /* Invisible padding so the dots stay easy to hit on touch screens */
+  .slider__dot::after {
+    content: "";
+    position: absolute;
+    inset: -10px;
+  }
+
+  .slider__dot:hover {
+    transform: scale(1.12);
+  }
+
+  .slider__dot[aria-current="true"] {
+    background: var(--color-brightline-yellow);
+  }
+
+  /* Every slide's name sits under its dot, so you can see what's coming. The
+     ones that aren't showing are smaller and lighter; the current one is bold
+     and dark. The line height stays the same for both so they line up. */
+  .slider__label {
+    position: absolute;
+    top: calc(100% + 0.3cqw);
+    left: 50%;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-footnote-size);
+    line-height: var(--text-style-body-emphasized-line-height);
+    color: var(--text-secondary);
+    white-space: nowrap;
+    pointer-events: none;
+    transform: translateX(-50%);
+    transition:
+      color 0.3s ease,
+      font-size 0.3s ease;
+  }
+
+  .slider__dot[aria-current="true"] .slider__label {
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    font-size: var(--text-style-body-emphasized-size);
+    color: var(--text-display);
+  }
+
+  /* ----- Title and details ----- */
+
+  .cs-hero__intro {
+    padding: var(--space-section) 0 var(--scale-800);
+  }
+
+  .cs-hero__title {
+    margin: 0;
+    font-family: var(--text-style-title-family);
+    font-weight: var(--text-style-title-weight);
+    font-size: var(--text-style-title-size);
+    line-height: var(--text-style-title-line-height);
+    color: var(--text-primary);
+    text-align: center;
+  }
+
+  .cs-hero__rule {
+    width: min(1050px, 100%);
+    margin: var(--spacing-l) auto 0;
+    border: 0;
+    border-top: var(--scale-25) solid var(--border-secondary);
+  }
+
+  .cs-hero__facts {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: var(--spacing-l); /* 40px between columns */
+    margin: var(--scale-500) 0 0; /* 20px under the line */
+  }
+
+  .cs-hero__fact-label {
+    margin: 0 0 var(--spacing-s); /* 4px */
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-style: var(--text-style-footnote-style);
+    font-size: var(--text-style-footnote-size);
+    color: var(--text-secondary);
+  }
+
+  .cs-hero__fact-value {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-primary);
+  }
+
+  /* ----- Phones -----
+     Scaled straight down the slides would be too small to watch, so the middle
+     one takes up more of the card and the dots get a fixed, tappable size. */
+  @media (max-width: 899px) {
+    /* Five names won't fit side by side on a phone — they'd collide and the
+       last one would run off the card — so only the current one is shown. */
+    .slider__label {
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .slider__dot[aria-current="true"] .slider__label {
+      opacity: 1;
+    }
+
+    .slider {
+      --slide-width: 78cqw;
+      --slide-height: 62.4cqw;
+      --peek-width: 67.5cqw;
+      --peek-height: 58.4cqw;
+      --slide-gap: 80cqw;
+      --dot-size: 16px;
+      --track-width: 88cqw;
+
+      padding-top: 8cqw;
+    }
+
+    /* Keep the title, line, and details clear of the screen edges */
+    .cs-hero__intro {
+      padding-right: var(--scale-600); /* 24px */
+      padding-left: var(--scale-600);
+    }
+
+    /* One detail per row, left aligned, instead of a ragged wrapped row */
+    .cs-hero__facts {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: var(--scale-500); /* 20px */
+    }
+  }
+
+  /* Respect the "reduce motion" setting: slides swap without sliding. */
+  @media (prefers-reduced-motion: reduce) {
+    .slider__slide,
+    .slider__dot,
+    .slider__label {
+      transition: none;
+    }
+  }
+</style>

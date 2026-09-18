@@ -1,0 +1,748 @@
+---
+// "Increasing Value Perception in Earning" — the fourth section of the case
+// study.
+//
+// One grey card holding three stories, each split into text on the left and a
+// picture on the right, separated by white dividing lines:
+//   A. the two user mindsets + the donut chart
+//   B. deferred routing + the dark viewer (clicking an option swaps the picture
+//      and the two ratings, exactly like section 3)
+//   C. celebrating the earning moment + its picture
+//
+// The words and pictures live in src/content/brightlineLoyalty.ts.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+import { brightlineValue } from "../../content/brightlineLoyalty";
+import type { Rating } from "../../content/brightlineLoyalty";
+
+const { eyebrow, headline, mindsets, routing, celebration } = brightlineValue;
+
+// How many of the three dots are filled in for each rating.
+const dotsFor = (rating: Rating) =>
+  ({ low: 1, medium: 2, high: 3 })[rating as "low" | "medium" | "high"] ?? 0;
+
+const ratingsOf = (option: (typeof routing.options)[number]) => [
+  { label: "Value perception", value: option.valuePerception },
+  { label: "Cognitive load", value: option.cognitiveLoad },
+];
+
+const isVideo = (file: string) => file.toLowerCase().endsWith(".mp4");
+
+// The two halves of the chart's outer ring, drawn as invisible shapes on top of
+// the picture so they can be hovered. They're written in the picture's own
+// 600 × 645 coordinates: the ring is centred at (300, 336) and its band runs
+// from 181px out to 300px. The green half covers 234° of the circle (65%), the
+// orange half the remaining 126° (35%) — measured off the picture itself, so
+// they line up exactly with the colours underneath.
+//
+// If the chart picture is ever re-exported at a different size or with the
+// halves in different places, these two shapes need re-measuring to match.
+const chartHits = [
+  // Green — starts at the lower left, sweeps clockwise past the top to the right.
+  "M 125.37 579.93 A 300 300 0 1 1 600 336 L 481 336 A 181 181 0 1 0 194.64 483.17 Z",
+  // Orange — starts at the right, sweeps clockwise round to the lower left.
+  "M 600 336 A 300 300 0 0 1 125.37 579.93 L 194.64 483.17 A 181 181 0 0 0 481 336 Z",
+];
+---
+
+<section class="value">
+  <!-- ===== A. Two user mindsets ===== -->
+  <div class="value__block">
+    <div class="value__text">
+      <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="570px" />
+      <p class="value__body">{mindsets.intro}</p>
+    </div>
+
+    <!-- The chart is the picture, with two invisible shapes laid over the
+         outer ring. Hovering (or tabbing to) one shows its card. -->
+    <figure class="value__chart">
+      <div class="value__chart-plot">
+        <img
+          class="value__chart-image"
+          src={mindsets.chart.src}
+          alt={mindsets.chart.alt}
+          width="600"
+          height="645"
+        />
+
+        <svg class="value__hits" viewBox="0 0 600 645">
+          {
+            chartHits.map((hit, i) => (
+                <path
+                class:list={["value__hit", `value__hit--${i}`]}
+                d={hit}
+                tabindex="0"
+                role="img"
+                aria-label={mindsets.chart.tooltips[i].ringLabel}
+                aria-describedby={`value-tip-${i}`}
+              />
+            ))
+          }
+        </svg>
+      </div>
+
+      {
+        mindsets.chart.tooltips.map((tip, i) => (
+          <div
+            class:list={["value__tip", `value__tip--${i}`]}
+            id={`value-tip-${i}`}
+            role="tooltip"
+            style={`--tip-width: ${tip.width}`}
+          >
+            <p class="value__tip-title">
+              <img src={tip.icon} alt="" width="18" height="14" />
+              {tip.title}
+            </p>
+            <p class="value__tip-text">{tip.text}</p>
+          </div>
+        ))
+      }
+    </figure>
+  </div>
+
+  <hr class="value__rule" />
+
+  <!-- ===== B. Deferred routing ===== -->
+  <div class="value__block">
+    <div class="value__text value__text--split">
+      <div class="value__story">
+        <h3 class="value__headline">{routing.headline}</h3>
+        {routing.paragraphs.map((paragraph) => <p class="value__body">{paragraph}</p>)}
+      </div>
+
+      <!-- The two options sit against the bottom of the column, as designed -->
+      <ol class="value__options">
+        {
+          routing.options.map((option, i) => (
+            <li>
+              <button
+                type="button"
+                class="value__option"
+                data-option={i}
+                aria-pressed={i === 0}
+                aria-controls={`value-panel-${i}`}
+              >
+                {i + 1}. {option.label}
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+
+    <!-- The dark viewer: the chosen option's picture and its two ratings -->
+    <div class="value__viewer">
+      <div class="value__stage">
+        {
+          routing.options.map((option, i) => (
+            <div
+              class="value__panel"
+              id={`value-panel-${i}`}
+              data-panel={i}
+              hidden={i !== 0}
+            >
+              {option.media &&
+                (isVideo(option.media) ? (
+                  <video
+                    class="value__media"
+                    src={option.media}
+                    loop
+                    muted
+                    playsinline
+                    preload="metadata"
+                  />
+                ) : (
+                  <img
+                    class="value__media"
+                    src={option.media}
+                    alt={option.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ))}
+            </div>
+          ))
+        }
+      </div>
+
+      <div class="value__bar">
+        <div class="value__ratings">
+          {
+            routing.options.map((option, i) => (
+              <div class="value__rating-set" data-ratings={i} hidden={i !== 0}>
+                {ratingsOf(option).map((rating) => (
+                  <div class="value__rating">
+                    <p class="value__rating-label">{rating.label}</p>
+                    <div class="value__rating-value">
+                      <span>{rating.value || "—"}</span>
+                      <span class="value__dots" aria-hidden="true">
+                        {[1, 2, 3].map((dot) => (
+                          <span
+                            class:list={[
+                              "value__dot",
+                              { "is-on": dot <= dotsFor(rating.value) },
+                            ]}
+                          />
+                        ))}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="value__nav">
+          <p class="value__counter">
+            <span data-counter>1</span>/{routing.options.length}
+          </p>
+
+          <button
+            type="button"
+            class="value__next"
+            aria-label="Show the next option"
+          >
+            <img src="/images/arrow-down-circle.svg" alt="" width="40" height="40" />
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <hr class="value__rule" />
+
+  <!-- ===== C. Celebrating the earning moment ===== -->
+  <div class="value__block">
+    <div class="value__text">
+      <h3 class="value__headline">{celebration.headline}</h3>
+      {celebration.paragraphs.map((paragraph) => <p class="value__body">{paragraph}</p>)}
+    </div>
+
+    <div class="value__figure">
+      {
+        celebration.media &&
+          (isVideo(celebration.media) ? (
+            <video
+              class="value__media"
+              src={celebration.media}
+              loop
+              muted
+              playsinline
+              preload="metadata"
+            />
+          ) : (
+            <img
+              class="value__media"
+              src={celebration.media}
+              alt={celebration.alt}
+              loading="lazy"
+              decoding="async"
+            />
+          ))
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  // Swap which option the dark viewer is showing.
+  document.querySelectorAll<HTMLElement>(".value").forEach((section) => {
+    const buttons = [...section.querySelectorAll<HTMLButtonElement>("[data-option]")];
+    const panels = [...section.querySelectorAll<HTMLElement>("[data-panel]")];
+    const ratings = [...section.querySelectorAll<HTMLElement>("[data-ratings]")];
+    const counter = section.querySelector<HTMLElement>("[data-counter]");
+    const next = section.querySelector<HTMLButtonElement>(".value__next");
+    let current = 0;
+
+    const show = (index: number) => {
+      current = (index + buttons.length) % buttons.length;
+
+      buttons.forEach((button, i) =>
+        button.setAttribute("aria-pressed", String(i === current)),
+      );
+      panels.forEach((panel, i) => (panel.hidden = i !== current));
+      ratings.forEach((set, i) => (set.hidden = i !== current));
+      if (counter) counter.textContent = String(current + 1);
+
+      // Play the chosen video from the start; leave the others paused.
+      panels.forEach((panel, i) => {
+        const video = panel.querySelector("video");
+        if (!video) return;
+        if (i === current) {
+          video.currentTime = 0;
+          void video.play().catch(() => {
+            /* Some browsers block autoplay — the first frame stays up. */
+          });
+        } else {
+          video.pause();
+        }
+      });
+    };
+
+    buttons.forEach((button, i) => button.addEventListener("click", () => show(i)));
+    next?.addEventListener("click", () => show(current + 1));
+  });
+</script>
+
+<style>
+  /* Options that aren't showing are marked `hidden`. A `display` of our own
+     would otherwise override that and they'd all show at once. */
+  [hidden] {
+    display: none !important;
+  }
+
+  .value {
+    width: min(1280px, 100%);
+    margin: var(--scale-1000) auto 0; /* 40px below the section above */
+    padding: var(--scale-600); /* 24px */
+    overflow: hidden; /* keeps the full-width dividing lines inside the corners */
+    background: var(--surface-secondary);
+    border-radius: var(--radius-m); /* 16px */
+    color: var(--text-primary);
+  }
+
+  /* Each of the three stories: words on the left, picture on the right.
+     Grid, not flex, so the two keep the design's 639 : 554 proportions. */
+  .value__block {
+    display: grid;
+    grid-template-columns: minmax(0, 639fr) minmax(0, 553fr);
+    gap: var(--spacing-l); /* 40px */
+    align-items: start;
+  }
+
+  .value__text {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px */
+    min-width: 0;
+  }
+
+  /* The routing story: text at the top, its option list pushed to the bottom.
+     `align-self: stretch` makes this column as tall as the viewer beside it,
+     which is what gives the list somewhere to sit. */
+  .value__text--split {
+    justify-content: space-between;
+    align-self: stretch;
+  }
+
+  .value__story {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px */
+  }
+
+  /* The titles of the two stories below the first one. Same Subheadline style
+     as the section title above them, matching section 7. */
+  .value__headline {
+    margin: 0;
+    font-family: var(--text-style-subheadline-family);
+    font-weight: var(--text-style-subheadline-weight);
+    font-size: var(--text-style-subheadline-size);
+    line-height: var(--text-style-subheadline-line-height);
+  }
+
+  .value__body {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* The white line between the stories. It runs the full width of the card,
+     past the 24px padding, so the negative margins pull it out to the edges. */
+  .value__rule {
+    height: 6px; /* the design's line thickness */
+    margin: var(--scale-600) calc(var(--scale-600) * -1); /* 24px above/below */
+    border: 0;
+    background: var(--border-reverse);
+  }
+
+  /* ----- A. The donut chart ----- */
+
+  /* The white card the chart sits on. The picture itself has no background,
+     so the card is drawn here — same 554 × 390 proportions as the design. */
+  .value__chart {
+    position: relative; /* the hover shapes and cards sit on top of the picture */
+    aspect-ratio: 554 / 390;
+    /* Nudged down so the card starts level with the headline, as designed */
+    margin: var(--scale-1000) 0 0; /* 40px */
+    background: var(--surface-primary);
+    border-radius: var(--radius-m); /* 16px */
+  }
+
+  /* Where the chart sits inside that card: 300 wide in a 554-wide card,
+     centred, starting 22px down — the design's placement, as fractions so it
+     holds at any size. */
+  .value__chart-plot {
+    position: absolute;
+    top: 5.68%;
+    left: 50%;
+    width: 54.15%;
+    transform: translateX(-50%);
+  }
+
+  .value__chart-image {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* The two invisible shapes, stretched over the picture */
+  .value__hits {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .value__hit {
+    fill: transparent;
+    stroke: transparent;
+    stroke-width: 2;
+    cursor: help;
+    transition: stroke 0.2s ease;
+  }
+
+  /* Outlined in its own colour while it's being pointed at or tabbed to.
+     That outline is the focus signal, so the browser's own is turned off. */
+  .value__hit:focus {
+    outline: none;
+  }
+
+  .value__hit--0:hover,
+  .value__hit--0:focus {
+    stroke: var(--color-mindset-accumulator);
+  }
+
+  .value__hit--1:hover,
+  .value__hit--1:focus {
+    stroke: var(--color-mindset-partner);
+  }
+
+  /* ----- A. The two cards the chart shows ----- */
+
+  .value__tip {
+    position: absolute;
+    z-index: 1;
+    /* Its designed width, but never wider than the chart it sits on */
+    max-width: min(var(--tip-width), calc(100% - var(--scale-400)));
+    padding: var(--scale-300); /* 12px */
+    background: var(--surface-primary);
+    border: var(--scale-25) solid;
+    border-radius: var(--radius-xs); /* 4px */
+    box-shadow: 0 2px 8px rgb(0 0 0 / 0.2); /* the design's card shadow */
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.15s ease;
+    pointer-events: none; /* the card never blocks the shape underneath */
+  }
+
+  /* Each card sits in the corner nearest the half of the ring it describes */
+  .value__tip--0 {
+    top: var(--scale-200); /* 8px */
+    left: var(--scale-200);
+    border-color: var(--color-mindset-accumulator);
+  }
+
+  .value__tip--1 {
+    right: var(--scale-200);
+    bottom: var(--scale-200);
+    border-color: var(--color-mindset-partner);
+  }
+
+  /* Show the matching card while its half of the ring is pointed at */
+  .value__chart:has(.value__hit--0:hover) .value__tip--0,
+  .value__chart:has(.value__hit--0:focus) .value__tip--0,
+  .value__chart:has(.value__hit--1:hover) .value__tip--1,
+  .value__chart:has(.value__hit--1:focus) .value__tip--1 {
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .value__tip-title,
+  .value__tip-text {
+    margin: 0;
+    /* The footnote type, standing upright rather than italic */
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-size: var(--text-style-footnote-size);
+    font-style: normal;
+    line-height: normal;
+  }
+
+  .value__tip-title {
+    display: flex;
+    gap: var(--scale-200); /* 8px */
+    align-items: center;
+    color: var(--text-display);
+  }
+
+  .value__tip-text {
+    margin-top: var(--scale-200); /* 8px */
+    color: var(--text-secondary);
+  }
+
+  /* Each icon keeps the exact size it was drawn at */
+  .value__tip--0 .value__tip-title img {
+    width: 16px;
+    height: 12.83px;
+  }
+
+  .value__tip--1 .value__tip-title img {
+    width: 17.63px;
+    height: 13.06px;
+  }
+
+  /* ----- B. The option list ----- */
+
+  .value__options {
+    margin: var(--scale-1000) 0 0; /* 40px clear of the story above */
+    padding: 0;
+    list-style: none;
+  }
+
+  .value__option {
+    display: block;
+    width: 100%;
+    padding: var(--scale-200) 0; /* 8px above and below */
+    border: 0;
+    background: none;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-secondary);
+    text-align: left;
+    cursor: pointer;
+    transition: color 0.2s ease;
+  }
+
+  .value__options li + li .value__option {
+    border-top: var(--scale-25) solid var(--border-secondary);
+  }
+
+  .value__option:hover {
+    color: var(--text-primary);
+  }
+
+  /* The chosen one */
+  .value__option[aria-pressed="true"] {
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    color: var(--text-primary);
+    cursor: default;
+  }
+
+  /* ----- B. The dark viewer ----- */
+
+  .value__viewer {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    overflow: hidden;
+    background: var(--surface-reverse);
+    border-radius: var(--radius-m); /* 16px */
+  }
+
+  /* Where the picture or video goes */
+  .value__stage {
+    position: relative;
+    aspect-ratio: 554 / 474;
+    background: var(--surface-primary);
+    border-radius: 0 0 var(--radius-m) var(--radius-m);
+    overflow: hidden;
+  }
+
+  .value__panel,
+  .value__media {
+    width: 100%;
+    height: 100%;
+  }
+
+  .value__media {
+    display: block;
+    object-fit: cover;
+  }
+
+  /* ----- B. The ratings bar along the bottom ----- */
+
+  .value__bar {
+    display: flex;
+    flex: 1 0 auto;
+    gap: var(--scale-400); /* 16px */
+    align-items: center;
+    min-height: 76px;
+    padding: 0 var(--scale-600); /* 24px */
+    color: var(--text-on-action);
+  }
+
+  .value__ratings {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  .value__rating-set {
+    display: flex;
+    gap: var(--scale-400); /* 16px */
+    align-items: center;
+  }
+
+  .value__rating {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-100); /* 4px between the label and its value */
+  }
+
+  /* A short hairline between the two ratings, centred on the row */
+  .value__rating + .value__rating {
+    position: relative;
+    padding-left: var(--scale-400); /* 16px */
+  }
+
+  .value__rating + .value__rating::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: var(--scale-25); /* 1px */
+    height: var(--scale-800); /* 32px */
+    background: var(--border-reverse);
+    transform: translateY(-50%);
+  }
+
+  .value__rating-label,
+  .value__rating-value {
+    margin: 0;
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-style: var(--text-style-footnote-style);
+    font-size: var(--text-style-footnote-size);
+    line-height: normal;
+    white-space: nowrap;
+  }
+
+  .value__rating-value {
+    display: flex;
+    gap: var(--scale-200); /* 8px */
+    align-items: center;
+  }
+
+  /* Three dots; the rating fills 1, 2 or 3 of them */
+  .value__dots {
+    display: flex;
+    gap: var(--scale-100); /* 4px */
+    align-items: center;
+  }
+
+  .value__dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: color-mix(in srgb, var(--text-on-action) 35%, transparent);
+  }
+
+  .value__dot.is-on {
+    background: var(--text-on-action);
+  }
+
+  /* The counter and the arrow travel together, so they never split across
+     two lines when the bar gets tight. */
+  .value__nav {
+    display: flex;
+    gap: var(--scale-400); /* 16px */
+    align-items: center;
+    margin-left: auto;
+  }
+
+  .value__counter {
+    margin: 0;
+    font-family: var(--text-style-headline-family);
+    font-weight: var(--text-style-headline-weight);
+    font-size: var(--text-style-headline-size); /* 30px */
+    line-height: normal;
+    white-space: nowrap;
+  }
+
+  .value__next {
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    line-height: 0;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+  }
+
+  .value__next:hover {
+    transform: translateY(2px);
+  }
+
+  .value__next img {
+    display: block;
+    width: 40px;
+    height: 40px;
+  }
+
+  /* ----- C. The confirmation picture ----- */
+
+  .value__figure {
+    aspect-ratio: 554 / 361;
+    overflow: hidden;
+    background: var(--surface-primary);
+    border-radius: var(--radius-m); /* 16px */
+  }
+
+  /* ----- Phones: each story stacks, picture under its words ----- */
+
+  @media (max-width: 899px) {
+    .value__block {
+      grid-template-columns: minmax(0, 1fr);
+      gap: var(--scale-600); /* 24px */
+    }
+
+    .value__text--split {
+      display: contents; /* lets the viewer slot in between story and options */
+    }
+
+    .value__viewer {
+      order: 2;
+    }
+
+    .value__options {
+      order: 3;
+      margin-top: 0;
+    }
+
+    .value__chart {
+      margin-top: 0; /* the grid gap already spaces it */
+    }
+
+    /* On a phone there's no room in the corners, so both cards sit across
+       the bottom of the chart instead. */
+    .value__tip {
+      right: var(--scale-200);
+      bottom: var(--scale-200);
+      left: var(--scale-200);
+      top: auto;
+    }
+
+    .value__bar {
+      flex-wrap: wrap;
+      gap: var(--scale-300);
+      min-height: 64px;
+      padding: var(--scale-300) var(--scale-600);
+    }
+
+    .value__rating-set {
+      gap: var(--scale-300);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .value__option,
+    .value__next {
+      transition: none;
+    }
+  }
+</style>

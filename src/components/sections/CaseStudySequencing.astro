@@ -1,0 +1,111 @@
+---
+// "Strategic Sequencing" — the second section of the case study.
+// The story on the left, the touch point map picture (with its caption) on the
+// right. All the words and the picture's path live in
+// src/content/brightlineLoyalty.ts.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+import { brightlineSequencing } from "../../content/brightlineLoyalty";
+
+const { eyebrow, headline, paragraphs, figure } = brightlineSequencing;
+---
+
+<section class="sequencing">
+  <div class="sequencing__story">
+    <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="586px" />
+    {paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+  </div>
+
+  <figure class="sequencing__figure">
+    {
+      figure.images.map((image) => (
+        <img
+          src={image.src}
+          alt={image.alt}
+          width={image.width}
+          height={image.height}
+        />
+      ))
+    }
+    <figcaption>{figure.caption}</figcaption>
+  </figure>
+</section>
+
+<style>
+  .sequencing {
+    display: flex;
+    gap: var(--spacing-l); /* 40px */
+    align-items: flex-start;
+    width: min(1280px, 100%);
+    margin: var(--scale-1000) auto 0; /* 40px below the section above */
+    padding: var(--scale-600); /* 24px */
+    background: var(--surface-secondary);
+    border-radius: var(--radius-m); /* 16px */
+    color: var(--text-primary);
+  }
+
+  /* ----- Left: the story ----- */
+
+  .sequencing__story {
+    display: flex;
+    flex: 1 1 0;
+    flex-direction: column;
+    gap: var(--text-style-body-line-height); /* a blank line between blocks */
+    min-width: 0;
+  }
+
+  .sequencing__story p {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  /* ----- Right: the touch point map ----- */
+
+  .sequencing__figure {
+    /* Same share of the width as the story beside it, so the two halves stay
+       equal and shrink together (matching section 1). */
+    flex: 1 1 0;
+    min-width: 0;
+    margin: 0;
+    /* Nudged down so the picture starts level with the headline, as designed */
+    padding-top: var(--scale-600); /* 24px */
+  }
+
+  .sequencing__figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  /* The 18px gap between the roadmap chart and the grid below it */
+  .sequencing__figure img + img {
+    margin-top: 18px;
+  }
+
+  .sequencing__figure figcaption {
+    margin-top: var(--scale-400); /* 16px */
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-style: var(--text-style-footnote-style);
+    font-size: var(--text-style-footnote-size);
+    line-height: normal;
+    color: var(--text-secondary);
+  }
+
+  /* ----- Phones: picture below the story ----- */
+
+  @media (max-width: 899px) {
+    .sequencing {
+      flex-direction: column;
+      gap: var(--scale-600); /* 24px */
+    }
+
+    .sequencing__figure {
+      flex: 0 0 auto;
+      width: 100%;
+      padding-top: 0;
+    }
+  }
+</style>

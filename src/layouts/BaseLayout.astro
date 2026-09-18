@@ -7,9 +7,16 @@ interface Props {
   // When true, the nav blends into the grey hero card below (used on the
   // About page). Defaults to the plain white nav.
   wrapNav?: boolean;
+  // When true, the nav sits on top of the hero card in white text and hides
+  // and reappears as you scroll (used on case study pages).
+  overlayNav?: boolean;
 }
 
-const { title = "Alice Li — Portfolio", wrapNav = false } = Astro.props;
+const {
+  title = "Alice Li — Portfolio",
+  wrapNav = false,
+  overlayNav = false,
+} = Astro.props;
 ---
 
 <html lang="en">
@@ -20,19 +27,19 @@ const { title = "Alice Li — Portfolio", wrapNav = false } = Astro.props;
     <meta name="viewport" content="width=device-width" />
     <meta name="generator" content={Astro.generator} />
 
-    <!-- Google Fonts: Cormorant Garamond (400 + 700 italic) + Figtree (400, 600)
-         + Geist (800) + Jersey 10 (single pixel weight) -->
+    <!-- Google Fonts: Cormorant Garamond (400 + 700 italic) + Figtree (400, 500,
+         600, 700 + 500 italic) + Geist (800) + Jersey 10 (single pixel weight) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,700&family=Figtree:wght@400;600&family=Geist:wght@800&family=Jersey+10&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,700&family=Figtree:ital,wght@0,400;0,500;0,600;0,700;1,500&family=Geist:wght@800&family=Jersey+10&display=swap"
       rel="stylesheet"
     />
 
     <title>{title}</title>
   </head>
   <body>
-    <Nav wrapped={wrapNav} />
+    <Nav wrapped={wrapNav} overlay={overlayNav} />
     <main>
       <slot />
     </main>
@@ -55,5 +62,10 @@ const { title = "Alice Li — Portfolio", wrapNav = false } = Astro.props;
     font-family: var(--font-body), sans-serif;
     color: var(--text-primary);
     background-color: var(--surface-primary);
+    /* Draw text the way Figma does. Without these, Mac browsers thicken every
+       letter slightly (subpixel smoothing), so the site looks heavier than the
+       design even at the same font weight. */
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 </style>

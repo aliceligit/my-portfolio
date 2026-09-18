@@ -6,12 +6,18 @@
 // `wrapped` makes the nav blend into the grey hero card below it (transparent
 // bar + grey rounded-top inner) so the two read as one card. Off by default, so
 // most pages keep the plain white nav.
+//
+// `overlay` (used on case study pages) lifts the nav out of the page and sits it
+// on top of the hero card in white text, and adds the scroll behaviour:
+// scrolling down slides it up out of sight, scrolling back up brings it in with
+// a grey background, and returning to the top makes it see-through again.
 
 interface Props {
   wrapped?: boolean;
+  overlay?: boolean;
 }
 
-const { wrapped = false } = Astro.props;
+const { wrapped = false, overlay = false } = Astro.props;
 
 const links = [
   { label: "WORK", href: "/work" },
@@ -20,7 +26,9 @@ const links = [
 ];
 ---
 
-<header class:list={["nav", { "nav--wrapped": wrapped }]}>
+<header
+  class:list={["nav", { "nav--wrapped": wrapped, "nav--overlay": overlay }]}
+>
   <nav class="nav__inner">
     <a href="/" class="nav__logo">ALICE LI</a>
 
@@ -43,6 +51,73 @@ const links = [
     </button>
   </nav>
 </header>
+
+<script>
+  // Overlay nav only (case study pages). Scrolling down hides the bar; scrolling
+  // back up brings it in on a grey background; returning to the very top makes
+  // it see-through over the hero card again. Pages without the overlay nav skip
+  // all of this.
+  const nav = document.querySelector(".nav--overlay");
+
+  if (nav) {
+    const TOP_ZONE = 10; // px — close enough to the top to count as "at the top"
+    const THRESHOLD = 8; // px — ignore tiny wobbles, only react to real moves
+    let lastY = Math.max(0, window.scrollY);
+
+    const update = () => {
+      const y = Math.max(0, window.scrollY);
+
+      if (y <= TOP_ZONE) {
+        // Back over the hero card: see-through again.
+        nav.classList.remove("is-hidden", "is-solid");
+      } else if (y > lastY + THRESHOLD) {
+        // Scrolling down: slide away exactly as it looks right now. Coming from
+        // the top of the page that means see-through the whole way out — no
+        // grey background appears while it's leaving.
+        nav.classList.add("is-hidden");
+      } else if (y < lastY - THRESHOLD) {
+        // Scrolling up: bring it back.
+        nav.classList.remove("is-hidden");
+        nav.classList.add("is-solid");
+      } else {
+        return; // too small a move to count — wait for more
+      }
+
+      lastY = y;
+    };
+
+    // Only do the work once per frame, however fast the scroll events arrive.
+    let queued = false;
+    window.addEventListener(
+      "scroll",
+      () => {
+        if (queued) return;
+        queued = true;
+        requestAnimationFrame(() => {
+          queued = false;
+          update();
+        });
+      },
+      { passive: true },
+    );
+
+    // Once it has finished sliding out of sight, put it on its grey background
+    // so it's ready to come back. This happens off-screen, so it isn't seen.
+    nav.addEventListener("transitionend", (event) => {
+      if (
+        event.propertyName === "transform" &&
+        nav.classList.contains("is-hidden")
+      ) {
+        nav.classList.add("is-solid");
+      }
+    });
+
+    // Keyboard users tabbing into a hidden nav should see it.
+    nav.addEventListener("focusin", () => nav.classList.remove("is-hidden"));
+
+    update();
+  }
+</script>
 
 <style>
   .nav {
@@ -80,6 +155,76 @@ const links = [
   @media (max-width: 899px) {
     .nav--wrapped .nav__inner {
       padding: 32px 24px 24px;
+    }
+  }
+
+  /* ----- Overlay: the nav sits on top of the hero card -----
+     Three states, all driven by `transform` so they slide into each other:
+       (default)   at the top of the page — see-through, white text, nudged
+                   down by 40px so it lines up with the top of the hero card
+       .is-hidden  slid up out of view (while scrolling down)
+       .is-solid   back in place at the very top, on a grey bar (scrolling up) */
+  .nav--overlay {
+    position: fixed;
+    top: 0;
+    right: 0;
+    left: 0;
+    background: transparent;
+    transform: translateY(var(--space-hero-top));
+    transition: transform 0.35s ease;
+  }
+
+  .nav--overlay .nav__inner {
+    padding: var(--scale-600) var(--scale-1000); /* 24px 40px */
+    /* Rounded on top like the hero card, square along the bottom so the bar
+       runs straight into whatever sits below it. */
+    border-radius: var(--scale-600) var(--scale-600) 0 0; /* 24px 24px 0 0 */
+    transition: background 0.3s ease;
+  }
+
+  .nav--overlay .nav__logo,
+  .nav--overlay .nav__link {
+    color: var(--text-on-action);
+  }
+
+  .nav--overlay .nav__menu span {
+    background: var(--text-on-action);
+  }
+
+  .nav--overlay.is-solid {
+    transform: translateY(0);
+  }
+
+  .nav--overlay.is-solid .nav__inner {
+    background: var(--surface-secondary);
+  }
+
+  /* Listed after .is-solid on purpose: while scrolling down the nav is both
+     solid and hidden, and hidden has to win, or it never slides away. */
+  .nav--overlay.is-hidden {
+    transform: translateY(-100%);
+  }
+
+  /* Back to the site's normal dark text once the grey bar is behind it */
+  .nav--overlay.is-solid .nav__logo,
+  .nav--overlay.is-solid .nav__link {
+    color: var(--text-primary);
+  }
+
+  .nav--overlay.is-solid .nav__menu span {
+    background: var(--text-primary);
+  }
+
+  @media (max-width: 899px) {
+    .nav--overlay .nav__inner {
+      padding: var(--scale-600);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .nav--overlay,
+    .nav--overlay .nav__inner {
+      transition: none;
     }
   }
 

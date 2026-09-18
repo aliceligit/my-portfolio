@@ -91,9 +91,19 @@ export default function HeroPills({ pills }: { pills: HeroPill[] }) {
       startedRef.current = true;
       setIntroDone(true); // make sure the hands are gone
 
-      const imported = await import("matter-js");
-      const Matter = ((imported as unknown as { default?: typeof imported })
-        .default ?? imported) as typeof import("matter-js");
+      // The physics library is only fetched at this point, so it can fail (a
+      // dropped connection, or the dev server rebuilding). If it does, allow a
+      // later scroll to try again rather than leaving the pills stuck mid-air.
+      let Matter: typeof import("matter-js");
+      try {
+        const imported = await import("matter-js");
+        Matter = ((imported as unknown as { default?: typeof imported })
+          .default ?? imported) as typeof import("matter-js");
+      } catch (error) {
+        startedRef.current = false;
+        console.error("Hero pills: the physics library failed to load.", error);
+        return;
+      }
       matterRef.current = Matter;
       const { Engine, Runner, Bodies, Composite, Mouse, MouseConstraint, Body } =
         Matter;
