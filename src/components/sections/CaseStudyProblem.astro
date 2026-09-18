@@ -6,6 +6,7 @@
 // All the words and pictures come from the case study's file in src/content/.
 // The stepping itself is a small React component (ProblemSlides) because it
 // has to respond to clicks; everything else here is plain Astro.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
 import ProblemSlides from "../animations/ProblemSlides.tsx";
 
 interface Slide {
@@ -16,22 +17,19 @@ interface Slide {
 
 interface Props {
   eyebrow: string;
-  title: string;
+  headline: string;
   // Each entry is one paragraph. <strong> tags inside are rendered as bold.
   body: string[];
   slides: Slide[];
   arrow: string;
 }
 
-const { eyebrow, title, body, slides, arrow } = Astro.props;
+const { eyebrow, headline, body, slides, arrow } = Astro.props;
 ---
 
 <section class="problem">
   <div class="problem__text">
-    <div class="problem__heading">
-      <p class="problem__eyebrow">{eyebrow}</p>
-      <h2 class="problem__title">{title}</h2>
-    </div>
+    <CaseStudyHeading eyebrow={eyebrow} headline={headline} />
     <div class="problem__body">
       {body.map((paragraph) => <p set:html={paragraph} />)}
     </div>
@@ -64,30 +62,6 @@ const { eyebrow, title, body, slides, arrow } = Astro.props;
     border-radius: var(--scale-400); /* 16px */
     background: var(--surface-secondary);
     min-width: 0;
-  }
-
-  .problem__heading {
-    display: flex;
-    flex-direction: column;
-    gap: var(--scale-200); /* 8px */
-  }
-
-  .problem__eyebrow {
-    margin: 0;
-    font-family: var(--text-style-footnote-family);
-    font-weight: var(--text-style-footnote-weight);
-    font-style: var(--text-style-footnote-style);
-    font-size: var(--text-style-footnote-size);
-    color: var(--text-primary);
-  }
-
-  .problem__title {
-    margin: 0;
-    font-family: var(--text-style-subheadline-family);
-    font-weight: var(--text-style-subheadline-weight);
-    font-size: var(--text-style-subheadline-size);
-    line-height: var(--text-style-subheadline-line-height);
-    color: var(--text-primary);
   }
 
   .problem__body p {

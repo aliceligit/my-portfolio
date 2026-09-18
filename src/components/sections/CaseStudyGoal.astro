@@ -1,0 +1,36 @@
+---
+// CaseStudyGoal — Section 2 of a case study: a single wide card holding the
+// numbered eyebrow and the goal written as a question.
+//
+// The words come from the case study's file in src/content/.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+
+interface Props {
+  eyebrow: string;
+  headline: string;
+}
+
+const { eyebrow, headline } = Astro.props;
+---
+
+<section class="goal">
+  <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="623px" />
+</section>
+
+<style>
+  .goal {
+    width: min(1280px, 100%);
+    margin: var(--spacing-l) auto 0; /* 40px below the section above */
+    padding: var(--scale-600); /* 24px */
+    border-radius: var(--scale-400); /* 16px */
+    background: var(--surface-secondary);
+  }
+
+  @media (max-width: 899px) {
+    .goal {
+      /* Keep the card clear of the screen edges, like the section above */
+      width: calc(100% - 2 * var(--scale-600));
+      margin-inline: var(--scale-600);
+    }
+  }
+</style>

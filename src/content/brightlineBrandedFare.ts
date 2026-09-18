@@ -62,7 +62,7 @@ export const brandedFareProblem = {
   // if you reorder sections later, renumber them here.
   eyebrow: "1. The Problem",
 
-  title:
+  headline:
     "Brightline needed to grow revenue per booking. Internal analysis had identified a leak: short-haul riders weren't converting to premium fares. Both business and product had their hypothesis.",
 
   // One entry per paragraph. To make words bold, wrap them in <strong>…</strong>
@@ -92,4 +92,16 @@ export const brandedFareProblem = {
   // The circular arrow on the slide card. It points down on every slide except
   // the last, where it flips to point back up to the start.
   arrow: "/images/BL Branded Fare/slide-arrow.svg",
+};
+
+// ---------------------------------------------------------------------------
+// Section 2 — The UX Goal
+// ---------------------------------------------------------------------------
+
+export const brandedFareGoal = {
+  eyebrow: "2. The UX Goal",
+
+  // <u>…</u> underlines a phrase, as in the design.
+  headline:
+    "With fare tiers are still pending, how do we <u>redesign the decision architecture</u> so any future fare structure <u>surfaces its value early enough</u> to stop revenue leaking to the cheapest tier?",
 };

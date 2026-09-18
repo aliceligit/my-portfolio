@@ -3,6 +3,8 @@
 // Used by every "1. ...", "2. ..." section on a case study page.
 interface Props {
   eyebrow: string;
+  // Plain text, but you can also use <u>…</u> to underline a phrase or
+  // <strong>…</strong> to make it bolder, as some sections do.
   headline: string;
   // How wide the headline is allowed to run before wrapping. Each section sets
   // its own, matching the design.
@@ -14,7 +16,7 @@ const { eyebrow, headline, maxWidth = "100%" } = Astro.props;
 
 <header class="cs-heading" style={`max-width: ${maxWidth}`}>
   <p class="cs-heading__eyebrow">{eyebrow}</p>
-  <h2 class="cs-heading__headline">{headline}</h2>
+  <h2 class="cs-heading__headline" set:html={headline} />
 </header>
 
 <style>
@@ -41,5 +43,12 @@ const { eyebrow, headline, maxWidth = "100%" } = Astro.props;
     font-weight: var(--text-style-subheadline-weight);
     font-size: var(--text-style-subheadline-size);
     line-height: var(--text-style-subheadline-line-height);
+  }
+
+  /* Underlines sit just under the letters, as in the design, and break around
+     descenders instead of striking through them. */
+  .cs-heading__headline :global(u) {
+    text-underline-position: from-font;
+    text-decoration-skip-ink: auto;
   }
 </style>
