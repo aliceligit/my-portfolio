@@ -48,7 +48,7 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     </div>
   </div>
 
-  <figure class="spectrum" tabindex="0">
+  <figure class="spectrum">
     <div class="spectrum__canvas">
       <div class="spectrum__chart">
       <div class="spectrum__pole spectrum__pole--top">
@@ -183,9 +183,9 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     background: var(--surface-primary);
   }
 
-  /* Everything inside the card is measured against this, not against the card,
-     so that on a narrow screen it can stay wide enough to read and be scrolled
-     sideways instead of shrinking away to nothing. */
+  /* Everything inside the card is measured against this. On a wide screen it
+     is simply the card; on a tablet it is capped at the design width so the
+     labels don't balloon. */
   .spectrum__canvas {
     container-type: inline-size;
     width: 100%;
@@ -418,19 +418,31 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     .spectrum {
       width: 100%;
       margin-top: 0;
-      /* Swipe the chart sideways rather than shrinking its text away. The
-         page itself never scrolls sideways — only this card does. */
-      overflow-x: auto;
-      overflow-y: hidden;
-      overscroll-behavior-x: contain;
     }
 
     .spectrum__canvas {
-      /* Never narrower than this, so the labels stay readable; never wider
-         than the design, so they don't balloon on a tablet. */
-      min-width: 480px;
+      /* Never wider than the design, so the labels don't balloon on a tablet */
       max-width: 560px;
       margin-inline: auto;
+    }
+
+  }
+
+  /* ----- Narrow screens -----
+     Above this width the chart still gets its full design size, so it is left
+     alone. Below it the chart would start being squeezed, so the whitespace
+     around it is cut back and the room handed to the chart itself: the
+     section's own padding and side margins, and above all the 53px of empty
+     margin the design leaves either side of the chart. */
+  @media (max-width: 660px) {
+    .competitive {
+      margin-inline: var(--scale-400); /* 16px, from 24px */
+      width: calc(100% - 2 * var(--scale-400));
+      padding: var(--scale-400); /* 16px, from 24px */
+    }
+
+    .spectrum__chart {
+      margin: 4cqw 3cqw; /* from roughly 6cqw / 9.4cqw */
     }
   }
 </style>
