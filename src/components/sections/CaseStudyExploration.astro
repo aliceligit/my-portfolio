@@ -120,11 +120,17 @@ const url = (path: string) => encodeURI(path);
 
   .exploration__phone {
     flex-shrink: 0;
+    /* border-box, so the outline sits inside the 230px rather than adding to it */
+    box-sizing: border-box;
     width: 230px;
-    /* The same shape as the animation, so the row never changes height while
+    /* The same shape as the recording, so the row never changes height while
        the file is still loading */
     aspect-ratio: 230 / 497;
     overflow: hidden;
+    /* The recordings are mostly white app screens on a light grey section, so
+       without this line their edges disappear into the background — the same
+       problem the framed screenshots in Section 1 don't have. */
+    border: var(--scale-25) solid var(--border-secondary);
     border-radius: var(--scale-600); /* 24px */
     background: var(--surface-placeholder);
   }
