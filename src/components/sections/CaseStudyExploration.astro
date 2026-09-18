@@ -134,6 +134,10 @@ const url = (path: string) => encodeURI(path);
     display: flex;
     flex-direction: column;
     gap: var(--scale-600); /* 24px between the two rows */
+    /* The rows never run wider than they do in the design, however wide the
+       page gets. At the 1280px design width the margins below already come to
+       exactly this, so nothing changes there. */
+    max-width: 955.87px;
     /* The rows sit inside the heading's left edge, as in the design */
     margin: var(--space-section-lg) 10% 0 12.4%; /* 80px below the heading */
   }
@@ -264,7 +268,9 @@ const url = (path: string) => encodeURI(path);
      the writing it takes every spare pixel and squeezes the line to nothing. */
   @media (max-width: 1279px) {
     .exploration__options {
-      margin-inline: 0;
+      /* Below the design width there is no room for the design's insets, so
+         the rows simply centre once they reach their full width. */
+      margin-inline: auto;
     }
 
     .exploration__text {
