@@ -15,6 +15,10 @@ export const brandedFareHero = {
   // the Hero frame at high resolution and replace this file.
   image: "/images/BL Branded Fare/hero.png",
 
+  // A much smaller copy of the same picture, shown to browsers that support
+  // it. Remake it with `node scripts/make-webp.mjs` after replacing the PNG.
+  imageWebp: "/images/BL Branded Fare/hero.webp",
+
   alt: "A laptop and a phone on a table. The laptop shows the Brightline desktop fare selection with the Smart Saver, Smart Select and Smart Flex fares side by side; the phone shows the app's departure screen with Premium Select and Premium Flex fares.",
 
   // The four details under the title.

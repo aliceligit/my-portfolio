@@ -4,8 +4,9 @@
 // (CaseStudyIntro).
 //
 // The picture is a single image exported from Figma, so there is nothing to
-// line up here — to change it, re-export the Hero frame and replace the file
-// named in src/content/.
+// line up here — to change it, re-export the Hero frame, replace the PNG named
+// in src/content/, then run `node scripts/make-webp.mjs` to remake the smaller
+// WebP copy. Browsers that understand WebP load that one; the rest get the PNG.
 import CaseStudyIntro from "./CaseStudyIntro.astro";
 
 interface Fact {
@@ -16,16 +17,26 @@ interface Fact {
 interface Props {
   title: string;
   image: string;
+  imageWebp: string;
   alt: string;
   facts: Fact[];
 }
 
-const { title, image, alt, facts } = Astro.props;
+const { title, image, imageWebp, alt, facts } = Astro.props;
+
+// The image folders have spaces in their names. A plain `src` copes with that,
+// but `srcset` treats a space as a separator, so the path has to be escaped or
+// the browser quietly ignores the WebP and falls back to the PNG.
+const webpUrl = encodeURI(imageWebp);
+const pngUrl = encodeURI(image);
 ---
 
 <section class="fare-hero">
   <div class="fare-hero__card">
-    <img class="fare-hero__image" src={image} alt={alt} />
+    <picture>
+      <source srcset={webpUrl} type="image/webp" />
+      <img class="fare-hero__image" src={pngUrl} alt={alt} />
+    </picture>
   </div>
 
   <CaseStudyIntro title={title} facts={facts} />
@@ -46,6 +57,12 @@ const { title, image, alt, facts } = Astro.props;
     overflow: hidden;
     border-radius: var(--scale-400); /* 16px */
     background: var(--surface-placeholder);
+  }
+
+  .fare-hero__card picture {
+    display: block;
+    width: 100%;
+    height: 100%;
   }
 
   .fare-hero__image {

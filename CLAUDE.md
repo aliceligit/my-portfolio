@@ -123,3 +123,7 @@ Why each part matters:
 - `python3 scripts/prepare-gifs.py` — run after adding or replacing a case study
   GIF. Fixes stuck last frames left by the export tool and regenerates the
   `-still.gif` companions the slider shows on its side slides.
+- `node scripts/make-webp.mjs` — run after replacing a hero picture. Makes the
+  much smaller WebP copy the page shows by default, keeping the PNG as a
+  fallback for older browsers. The pictures it covers are listed at the top of
+  the script.
