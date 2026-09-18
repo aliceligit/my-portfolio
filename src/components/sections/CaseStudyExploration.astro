@@ -284,6 +284,14 @@ const url = (path: string) => encodeURI(path);
     }
   }
 
+  /* ----- Narrower than a small laptop -----
+     The rows pull in further, so they don't run the full width of the card. */
+  @media (max-width: 1089px) {
+    .exploration__options {
+      max-width: 880px;
+    }
+  }
+
   /* ----- Phones -----
      Tablets keep the row and its joining line; only below this does a row
      leave the writing a few words wide, so the phone sits above its writing
