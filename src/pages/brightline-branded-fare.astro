@@ -5,10 +5,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import CaseStudyHeroScene from "../components/sections/CaseStudyHeroScene.astro";
 import CaseStudyProblem from "../components/sections/CaseStudyProblem.astro";
 import CaseStudyGoal from "../components/sections/CaseStudyGoal.astro";
+import CaseStudyCompetitive from "../components/sections/CaseStudyCompetitive.astro";
 import {
   brandedFareHero,
   brandedFareProblem,
   brandedFareGoal,
+  brandedFareCompetitive,
 } from "../content/brightlineBrandedFare";
 ---
 
@@ -29,5 +31,12 @@ import {
   <CaseStudyGoal
     eyebrow={brandedFareGoal.eyebrow}
     headline={brandedFareGoal.headline}
+  />
+  <CaseStudyCompetitive
+    eyebrow={brandedFareCompetitive.eyebrow}
+    headline={brandedFareCompetitive.headline}
+    insightsLabel={brandedFareCompetitive.insightsLabel}
+    body={brandedFareCompetitive.body}
+    chart={brandedFareCompetitive.chart}
   />
 </BaseLayout>

@@ -1,0 +1,422 @@
+---
+// CaseStudyCompetitive — Section 3 of a case study: the written analysis on the
+// left, and on the right a chart placing each company along a line running from
+// one fare model to the other.
+//
+// The chart is drawn in code rather than pasted in as a picture, so its text
+// stays sharp, selectable and editable. Everything it says comes from the case
+// study's file in src/content/; the positions of the cards come from the `top`
+// and `dot` numbers on each entry there.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+
+interface SpectrumItem {
+  name: string;
+  description: string;
+  side: "left" | "right";
+  top: number;
+  dot: number;
+  highlight?: boolean;
+}
+
+interface Label {
+  title: string;
+  description: string;
+}
+
+interface Props {
+  eyebrow: string;
+  headline: string;
+  insightsLabel: string;
+  body: string[];
+  chart: {
+    topLabel: Label;
+    bottomLabel: Label;
+    caption: Label;
+    items: SpectrumItem[];
+  };
+}
+
+const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
+---
+
+<section class="competitive">
+  <div class="competitive__text">
+    <CaseStudyHeading eyebrow={eyebrow} headline={headline} />
+    <div class="competitive__insights">
+      <p class="competitive__insights-label">{insightsLabel}</p>
+      {body.map((paragraph) => <p class="competitive__body" set:html={paragraph} />)}
+    </div>
+  </div>
+
+  <figure class="spectrum">
+    <div class="spectrum__chart">
+      <div class="spectrum__pole spectrum__pole--top">
+        <p class="spectrum__pole-title">{chart.topLabel.title}</p>
+        <p class="spectrum__pole-description">{chart.topLabel.description}</p>
+      </div>
+
+      <span class="spectrum__axis" aria-hidden="true"></span>
+
+      {
+        chart.items.map((item) => (
+          <>
+            <div
+              class:list={[
+                "spectrum__card",
+                `spectrum__card--${item.side}`,
+                item.highlight && "is-highlighted",
+              ]}
+              style={`--card-top: ${item.top}%`}
+            >
+              <p class="spectrum__name">{item.name}</p>
+              <p class="spectrum__description">{item.description}</p>
+            </div>
+            <span
+              class:list={[
+                "spectrum__connector",
+                `spectrum__connector--${item.side}`,
+                item.highlight && "is-highlighted",
+              ]}
+              style={`--dot-top: ${item.dot}%`}
+              aria-hidden="true"
+            />
+          </>
+        ))
+      }
+
+      <div class="spectrum__pole spectrum__pole--bottom">
+        <p class="spectrum__pole-title">{chart.bottomLabel.title}</p>
+        <p class="spectrum__pole-description">{chart.bottomLabel.description}</p>
+      </div>
+    </div>
+
+    <figcaption class="spectrum__caption">
+      <p class="spectrum__caption-title">{chart.caption.title}</p>
+      <p class="spectrum__caption-description">{chart.caption.description}</p>
+    </figcaption>
+  </figure>
+</section>
+
+<style>
+  .competitive {
+    display: flex;
+    align-items: flex-start;
+    gap: 36px; /* one-off measurement from the design */
+    width: min(1280px, 100%);
+    margin: var(--spacing-l) auto 0; /* 40px below the section above */
+    padding: var(--scale-600); /* 24px */
+    border-radius: var(--scale-400); /* 16px */
+    background: var(--surface-secondary);
+  }
+
+  /* ----- The written side ----- */
+
+  .competitive__text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px */
+    max-width: 623px;
+    min-width: 0;
+  }
+
+  .competitive__insights-label {
+    margin: 0 0 var(--scale-200); /* 8px */
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    font-size: var(--text-style-body-emphasized-size);
+    line-height: var(--text-style-body-emphasized-line-height);
+    color: var(--text-primary);
+  }
+
+  .competitive__body {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-primary);
+  }
+
+  /* A blank line between paragraphs, as in the design */
+  .competitive__body + .competitive__body {
+    margin-top: var(--text-style-body-line-height);
+  }
+
+  .competitive__body :global(strong) {
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+  }
+
+  /* ----- The chart -----
+     Everything inside is sized in `cqw` — percent of the card's own width — so
+     the whole chart shrinks as one piece. The comments give the pixel sizes
+     from Figma at the card's 560px design width. */
+
+  .spectrum {
+    /* Two label sizes used only by this chart. They aren't part of the shared
+       type scale in tokens.css, so they live here rather than there. */
+    --chart-name-size: 16px;
+    --chart-detail-size: 14px;
+
+    container-type: inline-size;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 560px;
+    margin: 35px 0 0; /* the design sits the chart 35px lower than the text */
+    overflow: hidden;
+    border-radius: var(--scale-200); /* 8px */
+    background: var(--surface-primary);
+  }
+
+  .spectrum__chart {
+    position: relative;
+    height: 100.19cqw; /* 561px */
+    margin: 5.89cqw 9.35cqw 4.81cqw 9.46cqw; /* 33 / 52 / 27 / 53px */
+  }
+
+  /* ----- The two ends of the line ----- */
+
+  .spectrum__pole {
+    position: absolute;
+    text-align: center;
+  }
+
+  .spectrum__pole--top {
+    top: 0;
+    left: 11.99%;
+    width: 75.88%;
+  }
+
+  .spectrum__pole--bottom {
+    top: 90.91%;
+    left: 7.48%;
+    width: 84.9%;
+  }
+
+  .spectrum__pole-title {
+    margin: 0 0 var(--spacing-s); /* 4px */
+    font-family: var(--font-figtree);
+    font-weight: var(--weight-bold);
+    font-size: var(--chart-name-size);
+    color: var(--text-primary);
+  }
+
+  .spectrum__pole-description {
+    margin: 0;
+    font-family: var(--font-figtree);
+    font-weight: var(--weight-medium);
+    font-size: var(--chart-detail-size);
+    color: var(--text-secondary);
+  }
+
+  /* ----- The line down the middle, with a dot at each end ----- */
+
+  .spectrum__axis {
+    position: absolute;
+    top: 11.1%;
+    left: 49.93%;
+    width: var(--scale-25); /* 1px */
+    height: 78.3%;
+    background: var(--border-secondary);
+  }
+
+  .spectrum__axis::before,
+  .spectrum__axis::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    width: 5.33px;
+    height: 5.33px;
+    border-radius: 50%;
+    background: var(--border-secondary);
+    transform: translate(-50%, -50%);
+  }
+
+  .spectrum__axis::before {
+    top: 0;
+  }
+
+  .spectrum__axis::after {
+    top: 100%;
+  }
+
+  /* ----- The company cards ----- */
+
+  .spectrum__card {
+    position: absolute;
+    top: var(--card-top);
+    width: 40.69%;
+    padding: var(--scale-200); /* 8px */
+    border: var(--scale-25) solid var(--border-secondary);
+    border-radius: var(--spacing-s); /* 4px */
+    background: var(--surface-tertiary);
+    text-align: center;
+  }
+
+  .spectrum__card--left {
+    left: 0;
+  }
+
+  .spectrum__card--right {
+    left: 59.31%;
+  }
+
+  /* Brightline's own card, marked out in the brand yellow */
+  .spectrum__card.is-highlighted {
+    border-color: var(--color-brightline-yellow);
+    background: var(--surface-primary);
+  }
+
+  .spectrum__name {
+    margin: 0 0 var(--spacing-s); /* 4px */
+    font-family: var(--font-figtree);
+    font-weight: var(--weight-bold);
+    font-size: var(--chart-name-size);
+    color: var(--text-primary);
+  }
+
+  .spectrum__description {
+    margin: 0;
+    font-family: var(--font-figtree);
+    font-weight: var(--weight-medium);
+    font-size: var(--chart-detail-size);
+    color: var(--text-secondary);
+  }
+
+  /* ----- The short line joining each card to the centre line ----- */
+
+  .spectrum__connector {
+    position: absolute;
+    top: var(--dot-top);
+    width: 10.45%;
+    height: 10px;
+  }
+
+  /* the thin line */
+  .spectrum__connector::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    height: var(--scale-25); /* 1px */
+    background: var(--color-grey-dark-grey);
+  }
+
+  /* the dot where it meets the centre line */
+  .spectrum__connector::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-grey-dark-grey);
+    transform: translateY(-50%);
+  }
+
+  .spectrum__connector--left {
+    left: 40.62%;
+  }
+
+  .spectrum__connector--left::before {
+    left: 0;
+    right: 10px;
+  }
+
+  .spectrum__connector--left::after {
+    right: 0;
+  }
+
+  .spectrum__connector--right {
+    left: 48.86%;
+  }
+
+  .spectrum__connector--right::before {
+    right: 0;
+    left: 10px;
+  }
+
+  .spectrum__connector--right::after {
+    left: 0;
+  }
+
+  .spectrum__connector.is-highlighted::before,
+  .spectrum__connector.is-highlighted::after {
+    background: var(--color-brightline-yellow);
+  }
+
+  /* ----- The dark caption bar ----- */
+
+  .spectrum__caption {
+    margin: auto 0 0;
+    padding: var(--scale-200) var(--scale-600); /* 8px / 24px */
+    min-height: 75px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--surface-reverse);
+    text-align: center;
+  }
+
+  .spectrum__caption-title {
+    margin: 0;
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    font-size: var(--text-style-body-emphasized-size);
+    line-height: var(--text-style-body-emphasized-line-height);
+    color: var(--text-reverse);
+  }
+
+  .spectrum__caption-description {
+    margin: 0;
+    font-family: var(--font-figtree);
+    font-weight: var(--weight-medium);
+    font-size: var(--text-style-footnote-size);
+    color: var(--text-reverse);
+  }
+
+  /* ----- Tablets: the chart shrinks with the page ----- */
+  @media (max-width: 1279px) {
+    .spectrum {
+      width: 46%;
+    }
+  }
+
+  /* ----- Phones -----
+     Two columns of cards either side of a line are unreadable at this width,
+     so the chart becomes a plain list: the top model, the companies in order,
+     then the bottom model. The line and its dots are dropped. */
+  @media (max-width: 899px) {
+    .competitive {
+      flex-direction: column;
+      gap: var(--scale-600); /* 24px */
+      margin-inline: var(--scale-600);
+      width: calc(100% - 2 * var(--scale-600));
+    }
+
+    .spectrum {
+      width: 100%;
+      margin-top: 0;
+    }
+
+    .spectrum__chart {
+      display: flex;
+      flex-direction: column;
+      gap: var(--scale-400); /* 16px */
+      height: auto;
+      margin: var(--scale-600);
+    }
+
+    .spectrum__pole,
+    .spectrum__card {
+      position: static;
+      width: 100%;
+    }
+
+    .spectrum__axis,
+    .spectrum__connector {
+      display: none;
+    }
+  }
+</style>
