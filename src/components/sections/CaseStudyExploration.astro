@@ -56,21 +56,10 @@ const url = (path: string) => encodeURI(path);
               loop
               playsinline
               preload="none"
+              tabindex="0"
+              controlslist="nodownload noplaybackrate"
+              disablepictureinpicture
             />
-
-            <button
-              class="exploration__playpause"
-              type="button"
-              aria-label="Pause the recording"
-            >
-              <svg class="exploration__icon exploration__icon--pause" viewBox="0 0 24 24" aria-hidden="true">
-                <rect x="7.5" y="5" width="3.5" height="14" rx="1.2" />
-                <rect x="13" y="5" width="3.5" height="14" rx="1.2" />
-              </svg>
-              <svg class="exploration__icon exploration__icon--play" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M8.5 5.4v13.2L19 12z" />
-              </svg>
-            </button>
           </div>
 
           <span class="exploration__connector" aria-hidden="true" />
@@ -88,35 +77,39 @@ const url = (path: string) => encodeURI(path);
 </section>
 
 <script>
-  // Each recording gets its own play/pause button. It stays out of the way
-  // until the reader's pointer is over the phone, or the recording is stopped,
-  // so the mockup isn't covered by player chrome.
+  // The player bar — play/pause, the progress slider, the timings — is the
+  // browser's own. It stays hidden so the mockup isn't covered, and appears
+  // while the reader's pointer is over the phone. It also stays put whenever
+  // the recording is stopped, so it can be scrubbed and restarted, and on
+  // touch screens, where there is no pointer to hover with.
   const quiet = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const canHover = window.matchMedia("(hover: hover)").matches;
 
   for (const phone of document.querySelectorAll<HTMLElement>(
     ".exploration__phone",
   )) {
     const video = phone.querySelector<HTMLVideoElement>(".exploration__video");
-    const button = phone.querySelector<HTMLButtonElement>(
-      ".exploration__playpause",
-    );
-    if (!video || !button) continue;
+    if (!video) continue;
 
-    const sync = () => {
-      phone.classList.toggle("is-paused", video.paused);
-      button.setAttribute(
-        "aria-label",
-        video.paused ? "Play the recording" : "Pause the recording",
-      );
+    const show = () => {
+      video.controls = true;
+    };
+    // Keep the bar while the recording is stopped, so it can be started again
+    const hide = () => {
+      if (!video.paused) video.controls = false;
     };
 
-    button.addEventListener("click", () => {
-      if (video.paused) video.play().catch(() => {});
-      else video.pause();
-    });
-
-    video.addEventListener("play", sync);
-    video.addEventListener("pause", sync);
+    if (canHover && !quiet) {
+      phone.addEventListener("pointerenter", show);
+      phone.addEventListener("pointerleave", hide);
+      // Reachable by keyboard too, not only by pointer
+      video.addEventListener("focus", show);
+      video.addEventListener("blur", hide);
+      video.addEventListener("pause", show);
+    } else {
+      // No hovering to do, or movement isn't wanted: leave the bar showing
+      video.controls = true;
+    }
 
     // A GIF can never be stopped. A video can, so readers who have asked their
     // device for less movement get a still frame rather than movement they
@@ -125,8 +118,6 @@ const url = (path: string) => encodeURI(path);
       video.autoplay = false;
       video.pause();
     }
-
-    sync();
   }
 </script>
 
@@ -170,8 +161,6 @@ const url = (path: string) => encodeURI(path);
        the file is still loading */
     aspect-ratio: 230 / 497;
     overflow: hidden;
-    /* anchors the play/pause button below */
-    position: relative;
     /* The recordings are mostly white app screens on a light grey section, so
        without this line their edges disappear into the background — the same
        problem the framed screenshots in Section 1 don't have. */
@@ -185,68 +174,6 @@ const url = (path: string) => encodeURI(path);
     width: 100%;
     height: 100%;
     object-fit: cover;
-  }
-
-  /* ----- The play / pause button -----
-     Hidden until the pointer is over the phone, so it never covers the
-     recording. Always shown when the recording is stopped, when the button has
-     keyboard focus, and on touch screens, where there is no hovering. */
-
-  .exploration__playpause {
-    position: absolute;
-    right: var(--scale-200); /* 8px */
-    bottom: var(--scale-200);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 36px;
-    height: 36px;
-    padding: 0;
-    border: 0;
-    border-radius: 50%;
-    background: rgb(37 34 30 / 0.65); /* --color-grey-black, see-through */
-    color: var(--color-grey-white);
-    cursor: pointer;
-    opacity: 0;
-    transition:
-      opacity 0.2s ease,
-      transform 0.2s ease;
-  }
-
-  .exploration__phone:hover .exploration__playpause,
-  .exploration__phone.is-paused .exploration__playpause,
-  .exploration__playpause:focus-visible {
-    opacity: 1;
-  }
-
-  .exploration__playpause:hover {
-    transform: scale(1.08);
-  }
-
-  .exploration__icon {
-    width: 20px;
-    height: 20px;
-    fill: currentColor;
-  }
-
-  /* Show the pause bars while playing, the arrow while stopped */
-  .exploration__icon--play {
-    display: none;
-  }
-
-  .exploration__phone.is-paused .exploration__icon--play {
-    display: block;
-  }
-
-  .exploration__phone.is-paused .exploration__icon--pause {
-    display: none;
-  }
-
-  /* No pointer to hover with, so leave the button showing */
-  @media (hover: none) {
-    .exploration__playpause {
-      opacity: 1;
-    }
   }
 
   /* ----- The line joining the phone to the writing -----
