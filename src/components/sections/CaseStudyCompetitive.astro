@@ -48,8 +48,9 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     </div>
   </div>
 
-  <figure class="spectrum">
-    <div class="spectrum__chart">
+  <figure class="spectrum" tabindex="0">
+    <div class="spectrum__canvas">
+      <div class="spectrum__chart">
       <div class="spectrum__pole spectrum__pole--top">
         <p class="spectrum__pole-title">{chart.topLabel.title}</p>
         <p class="spectrum__pole-description">{chart.topLabel.description}</p>
@@ -84,16 +85,17 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
         ))
       }
 
-      <div class="spectrum__pole spectrum__pole--bottom">
-        <p class="spectrum__pole-title">{chart.bottomLabel.title}</p>
-        <p class="spectrum__pole-description">{chart.bottomLabel.description}</p>
+        <div class="spectrum__pole spectrum__pole--bottom">
+          <p class="spectrum__pole-title">{chart.bottomLabel.title}</p>
+          <p class="spectrum__pole-description">{chart.bottomLabel.description}</p>
+        </div>
       </div>
-    </div>
 
-    <figcaption class="spectrum__caption">
-      <p class="spectrum__caption-title">{chart.caption.title}</p>
-      <p class="spectrum__caption-description">{chart.caption.description}</p>
-    </figcaption>
+      <figcaption class="spectrum__caption">
+        <p class="spectrum__caption-title">{chart.caption.title}</p>
+        <p class="spectrum__caption-description">{chart.caption.description}</p>
+      </figcaption>
+    </div>
   </figure>
 </section>
 
@@ -154,20 +156,39 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
      from Figma at the card's 560px design width. */
 
   .spectrum {
-    /* Two label sizes used only by this chart. They aren't part of the shared
-       type scale in tokens.css, so they live here rather than there. */
-    --chart-name-size: 16px;
-    --chart-detail-size: 14px;
+    /* Every size inside the chart is a share of the chart's own width
+       (`cqw` = 1% of it), so the text, padding and dots all shrink together
+       with the card instead of the text staying big and overflowing. The
+       comments give the pixel size at the chart's 560px design width. These
+       aren't part of the shared type scale in tokens.css, so they live here.
+       They scale at every screen size, because the chart keeps its branching
+       shape on phones too. */
+    --chart-name-size: 2.86cqw; /* 16px */
+    --chart-detail-size: 2.5cqw; /* 14px */
+    --chart-gap: 0.71cqw; /* 4px */
+    --chart-pad: 1.43cqw; /* 8px */
+    --chart-dot: 1.79cqw; /* 10px */
+    --chart-axis-dot: 0.95cqw; /* 5.33px */
+    --chart-caption-size: 3.21cqw; /* 18px */
+    --chart-caption-line: 6.07cqw; /* 34px */
+    --chart-caption-detail: 2.68cqw; /* 15px */
+    --chart-caption-pad: 1.43cqw 4.29cqw; /* 8px / 24px */
+    --chart-caption-min: 13.39cqw; /* 75px */
 
-    container-type: inline-size;
-    display: flex;
-    flex-direction: column;
     flex-shrink: 0;
     width: 560px;
     margin: 35px 0 0; /* the design sits the chart 35px lower than the text */
     overflow: hidden;
     border-radius: var(--scale-200); /* 8px */
     background: var(--surface-primary);
+  }
+
+  /* Everything inside the card is measured against this, not against the card,
+     so that on a narrow screen it can stay wide enough to read and be scrolled
+     sideways instead of shrinking away to nothing. */
+  .spectrum__canvas {
+    container-type: inline-size;
+    width: 100%;
   }
 
   .spectrum__chart {
@@ -196,7 +217,7 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
   }
 
   .spectrum__pole-title {
-    margin: 0 0 var(--spacing-s); /* 4px */
+    margin: 0 0 var(--chart-gap);
     font-family: var(--font-figtree);
     font-weight: var(--weight-bold);
     font-size: var(--chart-name-size);
@@ -227,8 +248,8 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     content: "";
     position: absolute;
     left: 50%;
-    width: 5.33px;
-    height: 5.33px;
+    width: var(--chart-axis-dot);
+    height: var(--chart-axis-dot);
     border-radius: 50%;
     background: var(--border-secondary);
     transform: translate(-50%, -50%);
@@ -248,7 +269,7 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     position: absolute;
     top: var(--card-top);
     width: 40.69%;
-    padding: var(--scale-200); /* 8px */
+    padding: var(--chart-pad);
     border: var(--scale-25) solid var(--border-secondary);
     border-radius: var(--spacing-s); /* 4px */
     background: var(--surface-tertiary);
@@ -270,7 +291,7 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
   }
 
   .spectrum__name {
-    margin: 0 0 var(--spacing-s); /* 4px */
+    margin: 0 0 var(--chart-gap);
     font-family: var(--font-figtree);
     font-weight: var(--weight-bold);
     font-size: var(--chart-name-size);
@@ -291,7 +312,7 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     position: absolute;
     top: var(--dot-top);
     width: 10.45%;
-    height: 10px;
+    height: var(--chart-dot);
   }
 
   /* the thin line */
@@ -308,8 +329,8 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     content: "";
     position: absolute;
     top: 50%;
-    width: 10px;
-    height: 10px;
+    width: var(--chart-dot);
+    height: var(--chart-dot);
     border-radius: 50%;
     background: var(--color-grey-dark-grey);
     transform: translateY(-50%);
@@ -321,7 +342,7 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
 
   .spectrum__connector--left::before {
     left: 0;
-    right: 10px;
+    right: var(--chart-dot);
   }
 
   .spectrum__connector--left::after {
@@ -334,7 +355,7 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
 
   .spectrum__connector--right::before {
     right: 0;
-    left: 10px;
+    left: var(--chart-dot);
   }
 
   .spectrum__connector--right::after {
@@ -349,9 +370,9 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
   /* ----- The dark caption bar ----- */
 
   .spectrum__caption {
-    margin: auto 0 0;
-    padding: var(--scale-200) var(--scale-600); /* 8px / 24px */
-    min-height: 75px;
+    margin: 0;
+    padding: var(--chart-caption-pad);
+    min-height: var(--chart-caption-min);
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -363,8 +384,8 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     margin: 0;
     font-family: var(--text-style-body-emphasized-family);
     font-weight: var(--text-style-body-emphasized-weight);
-    font-size: var(--text-style-body-emphasized-size);
-    line-height: var(--text-style-body-emphasized-line-height);
+    font-size: var(--chart-caption-size);
+    line-height: var(--chart-caption-line);
     color: var(--text-reverse);
   }
 
@@ -372,7 +393,7 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     margin: 0;
     font-family: var(--font-figtree);
     font-weight: var(--weight-medium);
-    font-size: var(--text-style-footnote-size);
+    font-size: var(--chart-caption-detail);
     color: var(--text-reverse);
   }
 
@@ -384,9 +405,8 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
   }
 
   /* ----- Phones -----
-     Two columns of cards either side of a line are unreadable at this width,
-     so the chart becomes a plain list: the top model, the companies in order,
-     then the bottom model. The line and its dots are dropped. */
+     The writing moves above the chart, but the chart itself keeps its shape:
+     the same two branches either side of the centre line, just smaller. */
   @media (max-width: 899px) {
     .competitive {
       flex-direction: column;
@@ -398,25 +418,19 @@ const { eyebrow, headline, insightsLabel, body, chart } = Astro.props;
     .spectrum {
       width: 100%;
       margin-top: 0;
+      /* Swipe the chart sideways rather than shrinking its text away. The
+         page itself never scrolls sideways — only this card does. */
+      overflow-x: auto;
+      overflow-y: hidden;
+      overscroll-behavior-x: contain;
     }
 
-    .spectrum__chart {
-      display: flex;
-      flex-direction: column;
-      gap: var(--scale-400); /* 16px */
-      height: auto;
-      margin: var(--scale-600);
-    }
-
-    .spectrum__pole,
-    .spectrum__card {
-      position: static;
-      width: 100%;
-    }
-
-    .spectrum__axis,
-    .spectrum__connector {
-      display: none;
+    .spectrum__canvas {
+      /* Never narrower than this, so the labels stay readable; never wider
+         than the design, so they don't balloon on a tablet. */
+      min-width: 480px;
+      max-width: 560px;
+      margin-inline: auto;
     }
   }
 </style>

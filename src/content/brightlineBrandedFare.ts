@@ -117,8 +117,8 @@ export interface SpectrumItem {
   side: "left" | "right";
   // How far down the chart the card sits, and how far down its little line
   // meets the centre line — both as a percentage from the top of the chart.
-  // Keep the list in top-to-bottom order: on a phone the chart becomes a plain
-  // list and follows this order.
+  // Keep the list in top-to-bottom order: that is the order a screen reader
+  // reads them in.
   top: number;
   dot: number;
   // Draws the card in Brightline yellow instead of the usual blue.
