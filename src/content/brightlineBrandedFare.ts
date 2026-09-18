@@ -92,7 +92,7 @@ export const brandedFareGoal = {
 
   // <u>…</u> underlines a phrase, as in the design.
   headline:
-    "With fare tiers are still pending, how do we <u>redesign the decision architecture</u> so any future fare structure <u>surfaces its value early enough</u> to stop revenue leaking to the cheapest tier?",
+    "With fare tiers still pending, how do we <u>redesign the decision architecture</u> so any future fare structure <u>surfaces its value early enough</u> to stop revenue leaking to the cheapest tier?",
 };
 
 // ---------------------------------------------------------------------------
@@ -191,7 +191,7 @@ export const brandedFareCompetitive = {
       },
       {
         name: "Marriott",
-        description: "loyalty-tier bundles",
+        description: "Loyalty-tier bundles",
         side: "right",
         top: 75.1,
         dot: 79.4,
