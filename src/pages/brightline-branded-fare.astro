@@ -3,7 +3,11 @@
 // Copy and images come from src/content/brightlineBrandedFare.ts.
 import BaseLayout from "../layouts/BaseLayout.astro";
 import CaseStudyHeroScene from "../components/sections/CaseStudyHeroScene.astro";
-import { brandedFareHero } from "../content/brightlineBrandedFare";
+import CaseStudyProblem from "../components/sections/CaseStudyProblem.astro";
+import {
+  brandedFareHero,
+  brandedFareProblem,
+} from "../content/brightlineBrandedFare";
 ---
 
 <BaseLayout title="Brightline Branded Fares — Alice Li" overlayNav>
@@ -12,5 +16,12 @@ import { brandedFareHero } from "../content/brightlineBrandedFare";
     scene={brandedFareHero.scene}
     screens={brandedFareHero.screens}
     facts={brandedFareHero.facts}
+  />
+  <CaseStudyProblem
+    eyebrow={brandedFareProblem.eyebrow}
+    title={brandedFareProblem.title}
+    body={brandedFareProblem.body}
+    slides={brandedFareProblem.slides}
+    arrow={brandedFareProblem.arrow}
   />
 </BaseLayout>

@@ -81,6 +81,8 @@
   --text-primary: var(--color-grey-dark-grey);
   --text-secondary: var(--color-grey-medium-grey);
   --text-on-action: var(--color-grey-white);
+  /* Text sitting on a reverse (dark) surface, e.g. the slide caption bar */
+  --text-reverse: var(--color-grey-white);
 
   /* Surface (background) colors */
   --surface-primary: var(--color-grey-white);

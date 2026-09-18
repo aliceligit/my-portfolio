@@ -1,0 +1,243 @@
+---
+// CaseStudyProblem — Section 1 of a case study: the written problem on the
+// left, and a card of annotated screens on the right that the reader steps
+// through with the circular arrow.
+//
+// All the words and pictures come from the case study's file in src/content/.
+// The stepping itself is a small React component (ProblemSlides) because it
+// has to respond to clicks; everything else here is plain Astro.
+import ProblemSlides from "../animations/ProblemSlides.tsx";
+
+interface Slide {
+  image: string;
+  alt: string;
+  caption: string;
+}
+
+interface Props {
+  eyebrow: string;
+  title: string;
+  // Each entry is one paragraph. <strong> tags inside are rendered as bold.
+  body: string[];
+  slides: Slide[];
+  arrow: string;
+}
+
+const { eyebrow, title, body, slides, arrow } = Astro.props;
+---
+
+<section class="problem">
+  <div class="problem__text">
+    <div class="problem__heading">
+      <p class="problem__eyebrow">{eyebrow}</p>
+      <h2 class="problem__title">{title}</h2>
+    </div>
+    <div class="problem__body">
+      {body.map((paragraph) => <p set:html={paragraph} />)}
+    </div>
+  </div>
+
+  <ProblemSlides slides={slides} arrow={arrow} client:load />
+</section>
+
+<style is:global>
+  /* Global (not scoped) so the classes on the React-rendered card are styled
+     too. */
+
+  .problem {
+    display: flex;
+    align-items: stretch;
+    /* 30px between the two columns — a one-off measurement from the design */
+    gap: 30px;
+    width: min(1280px, 100%);
+    margin: var(--spacing-l) auto 0; /* 40px below the hero */
+  }
+
+  /* ----- The written side ----- */
+
+  .problem__text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 29px; /* one-off measurement from the design */
+    padding: var(--scale-600); /* 24px */
+    border-radius: var(--scale-400); /* 16px */
+    background: var(--surface-secondary);
+    min-width: 0;
+  }
+
+  .problem__heading {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-200); /* 8px */
+  }
+
+  .problem__eyebrow {
+    margin: 0;
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-style: var(--text-style-footnote-style);
+    font-size: var(--text-style-footnote-size);
+    color: var(--text-primary);
+  }
+
+  .problem__title {
+    margin: 0;
+    font-family: var(--text-style-subheadline-family);
+    font-weight: var(--text-style-subheadline-weight);
+    font-size: var(--text-style-subheadline-size);
+    line-height: var(--text-style-subheadline-line-height);
+    color: var(--text-primary);
+  }
+
+  .problem__body p {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-primary);
+  }
+
+  /* A blank line between paragraphs, as in the design */
+  .problem__body p + p {
+    margin-top: var(--text-style-body-line-height);
+  }
+
+  .problem__body strong {
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+  }
+
+  /* ----- The picture card ----- */
+
+  .problem-slides {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    width: 588px;
+    overflow: hidden;
+    border-radius: var(--scale-400); /* 16px */
+    background: var(--surface-secondary);
+  }
+
+  /* The pictures are stacked on top of each other and faded between, so the
+     card never changes height as you step through them. */
+  .problem-slides__stage {
+    position: relative;
+    aspect-ratio: 588 / 597;
+  }
+
+  .problem-slides__image {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .problem-slides__image.is-active {
+    opacity: 1;
+  }
+
+  /* ----- The dark caption bar ----- */
+
+  .problem-slides__bar {
+    display: flex;
+    align-items: center;
+    gap: var(--scale-600); /* 24px */
+    min-height: 76px;
+    margin-top: auto;
+    padding: var(--scale-400) var(--scale-600); /* 16px / 24px */
+    background: var(--surface-reverse);
+  }
+
+  .problem-slides__caption {
+    flex: 1;
+    margin: 0;
+    font-family: var(--text-style-footnote-family);
+    font-weight: var(--text-style-footnote-weight);
+    font-style: var(--text-style-footnote-style);
+    font-size: var(--text-style-footnote-size);
+    color: var(--text-reverse);
+  }
+
+  .problem-slides__counter {
+    margin: 0;
+    font-family: var(--text-style-headline-family);
+    font-weight: var(--text-style-headline-weight);
+    font-size: var(--text-style-headline-size);
+    line-height: var(--text-style-headline-line-height);
+    color: var(--text-reverse);
+  }
+
+  .problem-slides__next {
+    display: flex;
+    flex-shrink: 0;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .problem-slides__next:hover .problem-slides__arrow {
+    transform: scale(1.08);
+  }
+
+  .problem-slides__next:hover .problem-slides__arrow.is-up {
+    transform: rotate(180deg) scale(1.08);
+  }
+
+  /* On the last picture the arrow flips, so it reads as "back to the start" */
+  .problem-slides__arrow {
+    display: block;
+    transition: transform 0.4s ease;
+  }
+
+  .problem-slides__arrow.is-up {
+    transform: rotate(180deg);
+  }
+
+  /* ----- Tablets: the card shrinks with the page ----- */
+  @media (max-width: 1279px) {
+    .problem-slides {
+      width: 46%;
+    }
+  }
+
+  /* ----- Phones: stack the writing above the pictures ----- */
+  @media (max-width: 899px) {
+    .problem {
+      flex-direction: column;
+      gap: var(--scale-600); /* 24px */
+      padding: 0 var(--scale-600);
+    }
+
+    .problem-slides {
+      width: 100%;
+    }
+
+    .problem-slides__bar {
+      flex-wrap: wrap;
+      gap: var(--scale-400); /* 16px */
+    }
+
+    .problem-slides__caption {
+      flex-basis: 100%;
+    }
+
+    .problem-slides__counter {
+      margin-right: auto;
+    }
+  }
+
+  /* Respect the "reduce motion" setting: pictures swap without fading. */
+  @media (prefers-reduced-motion: reduce) {
+    .problem-slides__image,
+    .problem-slides__arrow {
+      transition: none;
+    }
+  }
+</style>
