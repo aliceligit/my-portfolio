@@ -10,27 +10,12 @@ export interface CaseStudyFact {
 export const brandedFareHero = {
   title: "Brightline Branded Fares",
 
-  // The photo behind everything: the laptop and phone sitting on a table.
-  scene: "/images/BL Branded Fare/hero-scene.png",
+  // The hero picture: the laptop and phone on a table with the designs on
+  // their screens, exported from Figma as one image. To update it, re-export
+  // the Hero frame at high resolution and replace this file.
+  image: "/images/BL Branded Fare/hero.png",
 
-  // The two designs laid over the blank screens in that photo. Each one has a
-  // matching "mask" file — the outline of that screen, already tilted to the
-  // same angle as the photo — which trims the design to fit the screen exactly.
-  // If you swap a design for a newer screenshot, keep its mask as it is.
-  screens: [
-    {
-      name: "desktop",
-      image: "/images/BL Branded Fare/hero-desktop.png",
-      mask: "/images/BL Branded Fare/hero-desktop-mask.svg",
-      alt: "Brightline desktop fare selection, showing the Smart Saver, Smart Select and Smart Flex fares side by side",
-    },
-    {
-      name: "mobile",
-      image: "/images/BL Branded Fare/hero-mobile.png",
-      mask: "/images/BL Branded Fare/hero-mobile-mask.svg",
-      alt: "The Brightline app departure screen, showing Premium Select and Premium Flex fares",
-    },
-  ],
+  alt: "A laptop and a phone on a table. The laptop shows the Brightline desktop fare selection with the Smart Saver, Smart Select and Smart Flex fares side by side; the phone shows the app's departure screen with Premium Select and Premium Flex fares.",
 
   // The four details under the title.
   facts: [
