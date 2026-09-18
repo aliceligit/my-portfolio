@@ -280,7 +280,8 @@ const url = (path: string) => encodeURI(path);
     }
 
     .exploration__connector {
-      min-width: 40px;
+      /* Never shorter than this — the writing gives up the width instead */
+      min-width: 70px;
     }
   }
 
