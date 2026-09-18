@@ -259,23 +259,30 @@ const url = (path: string) => encodeURI(path);
   }
 
   /* ----- Smaller screens -----
-     The writing narrows before anything else, so the phone keeps its size. */
+     The writing narrows before anything else, so the phone keeps its size and
+     the joining line keeps a length you can actually see. Without the basis on
+     the writing it takes every spare pixel and squeezes the line to nothing. */
   @media (max-width: 1279px) {
     .exploration__options {
       margin-inline: 0;
     }
 
     .exploration__text {
-      flex-shrink: 1;
+      flex: 0 1 500px;
       width: auto;
       min-width: 0;
+    }
+
+    .exploration__connector {
+      min-width: 40px;
     }
   }
 
   /* ----- Phones -----
-     A row side by side would leave the writing a few words wide, so the phone
-     sits above its writing and the joining line is dropped. */
-  @media (max-width: 899px) {
+     Tablets keep the row and its joining line; only below this does a row
+     leave the writing a few words wide, so the phone sits above its writing
+     and the line is dropped. */
+  @media (max-width: 699px) {
     .exploration__row,
     .exploration__row--phone-right {
       flex-direction: column;
