@@ -1,0 +1,255 @@
+---
+// CaseStudyExploration — Section 4 of a case study: the numbered heading, then
+// one row per design option. Each row pairs a phone playing that option with
+// the writing about it, joined by a thin line, and the rows alternate sides.
+//
+// The words, the recordings and which side each phone sits on all come from
+// the case study's file in src/content/.
+//
+// Each recording is a silent, looping video rather than a GIF: far smaller for
+// the same pictures, and unlike a GIF it can be stopped — which is what the
+// script at the bottom does for readers who ask for less movement.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+
+interface Option {
+  title: string;
+  body: string[];
+  video: string;
+  poster: string;
+  alt: string;
+  phoneSide: "left" | "right";
+}
+
+interface Props {
+  eyebrow: string;
+  headline: string;
+  options: Option[];
+}
+
+const { eyebrow, headline, options } = Astro.props;
+
+// The image folders have spaces in their names; a path has to be escaped so
+// browsers read it as one address.
+const url = (path: string) => encodeURI(path);
+---
+
+<section class="exploration">
+  <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="623px" />
+
+  <div class="exploration__options">
+    {
+      options.map((option) => (
+        <div
+          class:list={[
+            "exploration__row",
+            `exploration__row--phone-${option.phoneSide}`,
+          ]}
+        >
+          <div class="exploration__phone">
+            <video
+              class="exploration__video"
+              src={url(option.video)}
+              poster={url(option.poster)}
+              aria-label={option.alt}
+              autoplay
+              muted
+              loop
+              playsinline
+              preload="none"
+            />
+          </div>
+
+          <span class="exploration__connector" aria-hidden="true" />
+
+          <div class="exploration__text">
+            <p class="exploration__title">{option.title}</p>
+            {option.body.map((paragraph) => (
+              <p class="exploration__body">{paragraph}</p>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  // A GIF can never be paused. A video can, so readers who have asked their
+  // device for less movement get a still frame and a play button instead.
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    for (const video of document.querySelectorAll<HTMLVideoElement>(
+      ".exploration__video",
+    )) {
+      video.autoplay = false;
+      video.controls = true;
+      video.pause();
+    }
+  }
+</script>
+
+<style>
+  .exploration {
+    width: min(1280px, 100%);
+    margin: var(--spacing-l) auto 0; /* 40px below the section above */
+    padding: var(--scale-600); /* 24px */
+    border-radius: var(--scale-400); /* 16px */
+    background: var(--surface-secondary);
+  }
+
+  .exploration__options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px between the two rows */
+    /* The rows sit inside the heading's left edge, as in the design */
+    margin: var(--space-section-lg) 10% 0 12.4%; /* 80px below the heading */
+  }
+
+  /* ----- One option ----- */
+
+  .exploration__row {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-m); /* 16px */
+  }
+
+  .exploration__row--phone-right {
+    flex-direction: row-reverse;
+  }
+
+  /* ----- The phone ----- */
+
+  .exploration__phone {
+    flex-shrink: 0;
+    width: 230px;
+    /* The same shape as the animation, so the row never changes height while
+       the file is still loading */
+    aspect-ratio: 230 / 497;
+    overflow: hidden;
+    border-radius: var(--scale-600); /* 24px */
+    background: var(--surface-placeholder);
+  }
+
+  .exploration__video {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  /* ----- The line joining the phone to the writing -----
+     It lines up with the middle of the option's title, and its dot sits at the
+     phone end. Drawn here rather than kept as a file, since it is one line and
+     one circle. */
+
+  .exploration__connector {
+    position: relative;
+    flex: 1;
+    height: 10px;
+    /* Drops the line to the middle of the title's first line */
+    margin-top: 76px;
+  }
+
+  .exploration__connector::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    height: var(--scale-25); /* 1px */
+    background: var(--color-grey-dark-grey);
+  }
+
+  .exploration__connector::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-grey-dark-grey);
+    transform: translateY(-50%);
+  }
+
+  .exploration__row--phone-left .exploration__connector::before {
+    left: 10px;
+    right: 0;
+  }
+
+  .exploration__row--phone-left .exploration__connector::after {
+    left: 0;
+  }
+
+  .exploration__row--phone-right .exploration__connector::before {
+    left: 0;
+    right: 10px;
+  }
+
+  .exploration__row--phone-right .exploration__connector::after {
+    right: 0;
+  }
+
+  /* ----- The writing ----- */
+
+  .exploration__text {
+    flex-shrink: 0;
+    width: 500px;
+    /* Sits a little below the top of the phone, as in the design */
+    margin-top: 64px;
+  }
+
+  .exploration__title {
+    margin: 0 0 var(--scale-200); /* 8px */
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    font-size: var(--text-style-body-emphasized-size);
+    line-height: var(--text-style-body-emphasized-line-height);
+    color: var(--text-primary);
+  }
+
+  .exploration__body {
+    margin: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-primary);
+  }
+
+  /* A blank line between paragraphs, as in the design */
+  .exploration__body + .exploration__body {
+    margin-top: var(--text-style-body-line-height);
+  }
+
+  /* ----- Smaller screens -----
+     The writing narrows before anything else, so the phone keeps its size. */
+  @media (max-width: 1279px) {
+    .exploration__options {
+      margin-inline: 0;
+    }
+
+    .exploration__text {
+      flex-shrink: 1;
+      width: auto;
+      min-width: 0;
+    }
+  }
+
+  /* ----- Phones -----
+     A row side by side would leave the writing a few words wide, so the phone
+     sits above its writing and the joining line is dropped. */
+  @media (max-width: 899px) {
+    .exploration__row,
+    .exploration__row--phone-right {
+      flex-direction: column;
+      align-items: center;
+      gap: var(--scale-600); /* 24px */
+    }
+
+    .exploration__connector {
+      display: none;
+    }
+
+    .exploration__text {
+      width: 100%;
+      margin-top: 0;
+    }
+  }
+</style>

@@ -199,3 +199,53 @@ export const brandedFareCompetitive = {
     ] satisfies SpectrumItem[],
   },
 };
+
+// ---------------------------------------------------------------------------
+// Section 4 — Design Exploration
+// ---------------------------------------------------------------------------
+
+export interface ExplorationOption {
+  title: string;
+  // One entry per paragraph.
+  body: string[];
+  // The recording, and the still frame shown until it has loaded. Make both
+  // from the exported GIF — see the commands in CLAUDE.md.
+  video: string;
+  poster: string;
+  // Describes the recording for screen readers.
+  alt: string;
+  // Which side of the row the phone sits on.
+  phoneSide: "left" | "right";
+}
+
+export const brandedFareExploration = {
+  eyebrow: "4. Design Exploration",
+
+  headline:
+    "Initially, the business leaned toward a new fare family. From there, my exploration focused on two questions: how clearly each fare communicates its value, and how the selection flow itself guides the decision .",
+
+  options: [
+    {
+      title: "Option 1: Progressive Disclosure with Class Toggle",
+      body: [
+        "Introduces a high-level toggle on the train selection page to switch between fare classes. Detailed benefits remain on a subsequent page.",
+        "It exposes the visibility of higher value classes with manageable cognitive load. But it still forces users to click through to see each fare and details. It forces back-and-forth navigation to compare trains.",
+      ],
+      video: "/images/BL Branded Fare/option-1.mp4",
+      poster: "/images/BL Branded Fare/option-1-poster.webp",
+      alt: "The first option played through on a phone: picking dates, then a separate Select Fare page with a Smart, New Class and Premium toggle across the top and each class's benefits underneath.",
+      phoneSide: "left",
+    },
+    {
+      title: "Option 2: Inline Fare Comparison",
+      body: [
+        "Embeds all fare classes and key benefits directly within each train card, turning the page into a unified decision surface.",
+        "It put the heavy choices up front, eliminated extra navigation steps and enabled instant comparison across trains and classes. The risk was noise. If we didn't design it carefully, the screen would turn into a wall of text and numbers. My job was to make all that information fit without breaking the experience.",
+      ],
+      video: "/images/BL Branded Fare/option-2.mp4",
+      poster: "/images/BL Branded Fare/option-2-poster.webp",
+      alt: "The second option played through on a phone: the departure list where each train card opens to show the Smart, New and Premium fares side by side with their benefits and prices.",
+      phoneSide: "right",
+    },
+  ] satisfies ExplorationOption[],
+};

@@ -127,3 +127,8 @@ Why each part matters:
   much smaller WebP copy the page shows by default, keeping the PNG as a
   fallback for older browsers. The pictures it covers are listed at the top of
   the script.
+- `swift scripts/gif-to-video.swift <in.gif> <out.mp4>` — turns an exported GIF
+  screen recording into a much smaller silent video, which is what the case
+  study pages play. Uses only what macOS already has, nothing to install. After
+  running it, make the still frame the page shows while the video loads:
+  `node -e` with sharp, or ask Claude — the poster files end in `-poster.webp`.
