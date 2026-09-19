@@ -298,11 +298,21 @@ const url = (path: string) => encodeURI(path);
      leave the writing a few words wide, so the phone sits above its writing
      and the line is dropped. */
   @media (max-width: 699px) {
+    /* More air under the last paragraph than the 24px the wider layouts use */
+    .exploration {
+      padding-bottom: var(--spacing-l); /* 40px */
+    }
+
+    /* and more between one option and the next */
+    .exploration__options {
+      gap: var(--spacing-l); /* 40px */
+    }
+
     .exploration__row,
     .exploration__row--phone-right {
       flex-direction: column;
       align-items: center;
-      gap: var(--scale-600); /* 24px */
+      gap: var(--scale-600); /* 24px — a phone stays close to its own writing */
     }
 
     .exploration__connector {
