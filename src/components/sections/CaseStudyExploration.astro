@@ -310,6 +310,11 @@ const url = (path: string) => encodeURI(path);
     }
 
     .exploration__text {
+      /* Back to sizing from its own content. The 500px the rows give it is a
+         width when they sit side by side, but here the row is a column, so
+         that number would become a height and leave a tall empty gap under
+         every paragraph. */
+      flex: 0 0 auto;
       width: 100%;
       margin-top: 0;
     }
