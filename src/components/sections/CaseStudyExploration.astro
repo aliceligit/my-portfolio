@@ -7,8 +7,9 @@
 // the case study's file in src/content/.
 //
 // Each recording is a silent, looping video rather than a GIF: far smaller for
-// the same pictures, and unlike a GIF it can be stopped — which is what the
-// script at the bottom does for readers who ask for less movement.
+// the same pictures, and unlike a GIF it can be stopped. The script at the
+// bottom uses that to play each one only while it is on screen, and not at all
+// for readers who ask for less movement.
 import CaseStudyHeading from "./CaseStudyHeading.astro";
 
 interface Option {
@@ -51,7 +52,6 @@ const url = (path: string) => encodeURI(path);
               src={url(option.video)}
               poster={url(option.poster)}
               aria-label={option.alt}
-              autoplay
               muted
               loop
               playsinline
@@ -91,6 +91,12 @@ const url = (path: string) => encodeURI(path);
     const video = phone.querySelector<HTMLVideoElement>(".exploration__video");
     if (!video) continue;
 
+    // True while the page itself has the recording stopped because it is off
+    // screen — as opposed to the reader pressing pause.
+    let pausedByPage = false;
+    // Once the reader has paused it themselves, the page never restarts it.
+    let pausedByReader = false;
+
     const show = () => {
       video.controls = true;
     };
@@ -105,19 +111,58 @@ const url = (path: string) => encodeURI(path);
       // Reachable by keyboard too, not only by pointer
       video.addEventListener("focus", show);
       video.addEventListener("blur", hide);
-      video.addEventListener("pause", show);
     } else {
       // No hovering to do, or movement isn't wanted: leave the bar showing
       video.controls = true;
     }
 
+    video.addEventListener("pause", () => {
+      if (pausedByPage) return;
+      pausedByReader = true;
+      show();
+    });
+    video.addEventListener("play", () => {
+      pausedByReader = false;
+    });
+
     // A GIF can never be stopped. A video can, so readers who have asked their
-    // device for less movement get a still frame rather than movement they
-    // didn't want.
-    if (quiet) {
-      video.autoplay = false;
-      video.pause();
-    }
+    // device for less movement get a still frame they can start themselves,
+    // rather than movement they didn't want.
+    if (quiet) continue;
+
+    const play = () => {
+      if (pausedByReader) return;
+      pausedByPage = false;
+      // Some devices refuse to start a video on their own (an iPhone in Low
+      // Power Mode, for one). Then the play button is left showing, so the
+      // reader can start it with a tap instead of looking at a still frame.
+      video.play().catch(show);
+    };
+
+    // Nothing downloads until the phone is about a screen away, so the page
+    // opens without fetching recordings nobody is looking at yet. It plays
+    // while on screen and stops when scrolled away.
+    let onScreen = false;
+    new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) video.preload = "auto";
+      },
+      { rootMargin: "100% 0px" },
+    ).observe(phone);
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry.isIntersecting;
+      if (onScreen) play();
+      else if (!video.paused) {
+        pausedByPage = true;
+        video.pause();
+      }
+    }).observe(phone);
+
+    // If the recording wasn't ready when it came on screen, start it as soon
+    // as it is.
+    video.addEventListener("canplay", () => {
+      if (onScreen && video.paused) play();
+    });
   }
 </script>
 

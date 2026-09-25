@@ -30,6 +30,9 @@ my-portfolio/
 │   └── pages/
 │       └── index.astro    ← Home page (uses BaseLayout)
 ├── docs/                  ← Notes on reusable techniques (e.g. scroll effects)
+├── source-recordings/     ← Original screen recordings. Deliberately outside
+│                            public/ and ignored by git: they are the master
+│                            files, and the site ships the converted MP4s.
 └── package.json
 ```
 
@@ -38,6 +41,10 @@ my-portfolio/
 - `docs/scroll-linked-horizontal-pan.md` — the "no-pin" method for making a row
   of cards pan horizontally on vertical scroll without any blank space
   (preferred over a pinned/sticky section, which always leaves blank space).
+- `docs/scroll-driven-storyboard.md` — the pinned-stage method: a section that
+  holds still while you scroll through it, lighting up one step at a time.
+  The deliberate exception to the rule above — use it only when the design
+  needs something to stay put *and* that something fills the screen.
 
 ## Where things live
 
@@ -127,6 +134,19 @@ Why each part matters:
   much smaller WebP copy the page shows by default, keeping the PNG as a
   fallback for older browsers. The pictures it covers are listed at the top of
   the script.
+- `node scripts/make-device-frame.mjs <phone|laptop> <figma-export.png>` — run
+  after re-exporting a device mockup from Figma (the "Apple iPhone 15 Pro Blue
+  Titanium" frame, node-id 2568-31009, or the "laptop mockup" frame, node-id
+  2596-27345 — either exported as PNG at 3x). Makes the frame the Section 5 and
+  6 storyboards lay over their recordings: it punches the screen out, keeps the
+  phone's Dynamic Island, and tidies up several things Figma's export gets
+  wrong. The script explains each of them at the top.
+- `swift scripts/video-to-web.swift <in> <out.mp4> [maxWidth] [bitrate]` — run
+  after adding a new screen recording. Turns a recording straight off the screen
+  (`.mov`, `.mp4`, whatever QuickTime gave you) into the much smaller file the
+  site actually ships: scaled down, re-compressed, and reordered so it starts
+  playing before it has finished downloading. Defaults suit a phone recording;
+  for a wide desktop one use `1440 1600000`.
 - `swift scripts/gif-to-video.swift <in.gif> <out.mp4>` — turns an exported GIF
   screen recording into a much smaller silent video, which is what the case
   study pages play. Uses only what macOS already has, nothing to install. After

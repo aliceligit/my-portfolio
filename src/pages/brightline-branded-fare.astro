@@ -7,12 +7,17 @@ import CaseStudyProblem from "../components/sections/CaseStudyProblem.astro";
 import CaseStudyGoal from "../components/sections/CaseStudyGoal.astro";
 import CaseStudyCompetitive from "../components/sections/CaseStudyCompetitive.astro";
 import CaseStudyExploration from "../components/sections/CaseStudyExploration.astro";
+import CaseStudyStoryboard from "../components/sections/CaseStudyStoryboard.astro";
+import CaseStudyReflection from "../components/sections/CaseStudyReflection.astro";
 import {
   brandedFareHero,
   brandedFareProblem,
   brandedFareGoal,
   brandedFareCompetitive,
   brandedFareExploration,
+  brandedFareStoryboard,
+  brandedFareStoryboardWeb,
+  brandedFareReflection,
 } from "../content/brightlineBrandedFare";
 ---
 
@@ -46,5 +51,22 @@ import {
     eyebrow={brandedFareExploration.eyebrow}
     headline={brandedFareExploration.headline}
     options={brandedFareExploration.options}
+  />
+  <CaseStudyStoryboard
+    eyebrow={brandedFareStoryboard.eyebrow}
+    headline={brandedFareStoryboard.headline}
+    steps={brandedFareStoryboard.steps}
+  />
+  <CaseStudyStoryboard
+    eyebrow={brandedFareStoryboardWeb.eyebrow}
+    headline={brandedFareStoryboardWeb.headline}
+    steps={brandedFareStoryboardWeb.steps}
+    media="web"
+  />
+  <CaseStudyReflection
+    eyebrow={brandedFareReflection.eyebrow}
+    headline={brandedFareReflection.headline}
+    lessonsLabel={brandedFareReflection.lessonsLabel}
+    lessons={brandedFareReflection.lessons}
   />
 </BaseLayout>

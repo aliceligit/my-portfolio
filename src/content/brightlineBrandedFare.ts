@@ -249,3 +249,157 @@ export const brandedFareExploration = {
     },
   ] satisfies ExplorationOption[],
 };
+
+// ---------------------------------------------------------------------------
+// Section 5 — Move to the final solution
+// ---------------------------------------------------------------------------
+
+export interface StoryboardStep {
+  // The number in the circle, and the order the steps light up in.
+  number: string;
+  title: string;
+  body: string;
+  // Which side of the phone this step's writing sits on. Each side holds two
+  // steps, in the order they appear here.
+  side: "left" | "right";
+  video: string;
+  poster: string;
+  alt: string;
+  // Optional. Bends the joining line down so it ends on a particular part of
+  // the recording instead of level with the step's title — as a share of the
+  // phone's height, from 0 (top) to 1 (bottom). Leave it out for a straight
+  // line.
+  pointAt?: number;
+}
+
+export const brandedFareStoryboard = {
+  eyebrow: "5. Move to the final solution - Mobile",
+
+  headline:
+    "The final business decision was to keep the existing two classes while adding more flexible options within each class. The inline fare comparison flow moved fare selection upfront, and we developed the design based on that direction, although we had to refine some interaction details along the way.",
+
+  steps: [
+    {
+      number: "1",
+      title: "Persistent class comparison",
+      body: "Two-class toggles persist at the top of the selection page as riders scroll, each carrying summary benefit label. Even though the premium toggle is persistent and more prominent, the risk is we still rely on users to discover and tap on it.",
+      side: "left",
+      // Points at the Smart / Premium toggles. They start a little lower and
+      // settle here once the list scrolls, where they stay for the rest of
+      // the recording and its held last frame.
+      pointAt: 0.181,
+      video: "/images/BL Branded Fare/final-1.mp4",
+      poster: "/images/BL Branded Fare/final-1-poster.webp",
+      alt: "The departure list on a phone, with the Smart and Premium toggles staying at the top of the screen as the train times scroll underneath.",
+    },
+    {
+      number: "2",
+      title: "Inline summarized fare comparison",
+      body: "Fare options appear inline within each train — a headline benefit summary and a price, not a full bullet points. The bet is most mobile users are returning customers learning fares over time, and repeated benefit text would hurt more than help.",
+      side: "left",
+      video: "/images/BL Branded Fare/final-2.mp4",
+      poster: "/images/BL Branded Fare/final-2-poster.webp",
+      alt: "A train card on a phone opening to show Premium Select and Premium Flex side by side, each with a one-line summary, a price and a Select button.",
+    },
+    {
+      number: "3",
+      title: "Full comparison chart for clarity and transparency",
+      body: "Riders who want full detail open a comparison table on demand. The default surface stays clean; the depth is one tap away.",
+      side: "right",
+      video: "/images/BL Branded Fare/final-3.mp4",
+      poster: "/images/BL Branded Fare/final-3-poster.webp",
+      alt: "The Compare Fare screen on a phone, listing every benefit for Premium Select and Premium Flex row by row, from seating space to cancellation.",
+    },
+    {
+      number: "4",
+      title: "Flag system as secondary signals for decision making",
+      body: "The flag systems were brought up as indicators to help users make fast and confident decisions. There are three categories: train types, fare specialty, and scarcity labels.",
+      side: "right",
+      video: "/images/BL Branded Fare/final-4.mp4",
+      poster: "/images/BL Branded Fare/final-4-poster.webp",
+      alt: "The departure list on a phone showing the flags in use: an Event Train label, a Pass Eligible badge and a red seats-remaining warning on a Smart Saver fare.",
+    },
+  ] satisfies StoryboardStep[],
+};
+
+// ---------------------------------------------------------------------------
+// Section 6 — Move to the final solution, on the website
+// ---------------------------------------------------------------------------
+
+export const brandedFareStoryboardWeb = {
+  eyebrow: "6. Move to the final solution - Website",
+
+  headline:
+    "The website is primarily designed for first-time users unfamiliar with our service and fares, prioritizing information clarity and transparency.",
+
+  steps: [
+    {
+      number: "1",
+      title: "Encouraging comparison between classes",
+      body: "Users can view the premium fares by just clicking the arrow instead of clicking the premium tab, in an intuitive and easy way.",
+      side: "right",
+      // Points at the first train's row of Smart and Premium prices. The
+      // share is of the whole laptop picture, base included.
+      pointAt: 0.336,
+      video: "/images/BL Branded Fare/web-1.mp4",
+      poster: "/images/BL Branded Fare/web-1-poster.webp",
+      alt: "The departure list on the website, where opening a train row reveals the Smart and Premium fares side by side with their benefits, prices and Select buttons.",
+    },
+    {
+      number: "2",
+      title: "Selected benefits for comparison",
+      body: "The flexibility comparisons are explicitly displayed for quick scanning. With expanded comparison items, more information is disclosed. If a comprehensive comparison is needed, the full comparison chart can be opened by one tap.",
+      side: "right",
+      // Points at the prices on the opened fare cards
+      pointAt: 0.672,
+      video: "/images/BL Branded Fare/web-2.mp4",
+      poster: "/images/BL Branded Fare/web-2-poster.webp",
+      alt: "The Fare Compare window on the website: a table with all five fares across the top and every benefit down the side, from changes and cancellations to seat selection.",
+    },
+  ] satisfies StoryboardStep[],
+};
+
+// ---------------------------------------------------------------------------
+// Section 7 — Reflection
+// ---------------------------------------------------------------------------
+
+export interface ReflectionLesson {
+  // The bold words on the left of the card.
+  title: string;
+  body: string;
+  // Which column the card sits in. The left column stacks its cards; keep the
+  // list in the order you want them read.
+  side: "left" | "right";
+}
+
+export const brandedFareReflection = {
+  eyebrow: "7. Reflection",
+
+  headline:
+    "When a business change reshapes an experience that directly drives revenue, design becomes decision architecture: what riders see, in what order, and what gets left out. The job is to steer toward what the business needs without steering riders into a choice they'd regret.",
+
+  lessonsLabel: "Lessons I learned:",
+
+  lessons: [
+    {
+      title: "Question the brief.",
+      body: "I was asked to add more fare tiers, but the data showed that riders couldn't see Premium. More tiers alone wouldn't have fixed that.",
+      side: "left",
+    },
+    {
+      title: "Design for the decision, not the price list.",
+      body: "The fare tiers were still being decided while I designed, so the flow had to work for whatever lineup the business chose in the end.",
+      side: "left",
+    },
+    {
+      title: "Every emphasis costs something.",
+      body: "Mobile got one-line summaries for returning riders. The website got full detail for first-time visitors. The real work was knowing what to cut, and for whom.",
+      side: "left",
+    },
+    {
+      title: "Agree on what this phase is for, and keep a backup.",
+      body: 'I worried riders would miss the Premium toggle, so I proposed a "View Premium fares" button under the Smart fares. The business said no. At this stage Smart Flex was the fare to promote, strong Smart Flex sales alone would meet the goal, and another button would crowd the flow. I agreed and kept the design as a backup for a later upgrade project, in case Premium sales come in low.',
+      side: "right",
+    },
+  ] satisfies ReflectionLesson[],
+};

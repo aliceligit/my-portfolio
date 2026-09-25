@@ -25,3 +25,10 @@ pnpm-debug.log*
 
 # local Claude Code tooling (preview config, local permissions)
 .claude/
+
+# Original screen recordings. Kept out of the site and out of git:
+# they are the source files, and the site ships the converted MP4s.
+source-recordings/
+
+# macOS sandbox leftovers from writing files inside the project
+*.sb-*

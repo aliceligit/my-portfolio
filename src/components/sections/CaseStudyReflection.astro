@@ -1,0 +1,177 @@
+---
+// CaseStudyReflection — the closing section of a case study: the numbered
+// eyebrow and a takeaway headline, then the lessons learned as white cards in
+// two columns. Each lesson's `side` in the content file picks its column.
+//
+// The words come from the case study's file in src/content/.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+
+interface Lesson {
+  title: string;
+  body: string;
+  side: "left" | "right";
+}
+
+interface Props {
+  eyebrow: string;
+  headline: string;
+  lessonsLabel: string;
+  lessons: Lesson[];
+}
+
+const { eyebrow, headline, lessonsLabel, lessons } = Astro.props;
+const columns = [
+  lessons.filter((lesson) => lesson.side === "left"),
+  lessons.filter((lesson) => lesson.side === "right"),
+];
+---
+
+<section class="reflection">
+  <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="623px" />
+
+  <div class="reflection__lessons">
+    <p class="reflection__label">{lessonsLabel}</p>
+    <div class="reflection__columns">
+      {columns.map((column) => (
+        <ul class="reflection__column">
+          {column.map((lesson) => (
+            <li class="reflection__card">
+              <h3 class="reflection__title">{lesson.title}</h3>
+              <p class="reflection__body">{lesson.body}</p>
+            </li>
+          ))}
+        </ul>
+      ))}
+    </div>
+  </div>
+</section>
+
+<style>
+  .reflection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px */
+    width: min(1280px, 100%);
+    margin: var(--spacing-l) auto 0; /* 40px below the section above */
+    padding: var(--scale-600); /* 24px */
+    border-radius: var(--radius-m); /* 16px */
+    background: var(--surface-secondary);
+    color: var(--text-primary);
+  }
+
+  .reflection__lessons {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px */
+  }
+
+  .reflection__label {
+    margin: 0;
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    font-size: var(--text-style-body-emphasized-size);
+    line-height: var(--text-style-body-emphasized-line-height);
+  }
+
+  /* Two equal columns. The right one is only as tall as its own card, as in
+     the design, rather than stretching to match the left. */
+  .reflection__columns {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--scale-600); /* 24px */
+  }
+
+  .reflection__column {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-600); /* 24px */
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* A lesson: bold title on the left, the explanation beside it */
+  .reflection__card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--scale-400); /* 16px */
+    padding: var(--scale-200) var(--scale-400); /* 8px / 16px */
+    border-radius: var(--radius-s); /* 8px */
+    background: var(--surface-primary);
+  }
+
+  .reflection__title,
+  .reflection__body {
+    margin: 0;
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+  }
+
+  .reflection__title {
+    flex-shrink: 0;
+    width: 194px; /* one-off measurement from the design */
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+  }
+
+  .reflection__body {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+  }
+
+  /* The lone card on the right splits its width evenly between title and
+     text, as in the design, instead of using the fixed title width. */
+  .reflection__column:last-child .reflection__title {
+    flex: 1;
+    width: auto;
+  }
+
+  /* Narrower screens: the title sits above its text, since side by side
+     would leave the text only a few words per line */
+  @media (max-width: 1089px) {
+    .reflection__card {
+      flex-direction: column;
+      gap: var(--scale-100); /* 4px */
+    }
+
+    .reflection__title,
+    .reflection__column:last-child .reflection__title {
+      width: auto;
+    }
+  }
+
+  /* Tablets and phones: one column, left-column cards first */
+  @media (max-width: 899px) {
+    .reflection {
+      width: calc(100% - 2 * var(--scale-600));
+      margin-inline: var(--scale-600);
+    }
+
+    .reflection__columns {
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  /* Phones: tighter edges and gaps */
+  @media (max-width: 660px) {
+    .reflection {
+      width: calc(100% - 2 * var(--scale-400));
+      margin-inline: var(--scale-400); /* 16px, from 24px */
+      padding: var(--scale-400); /* 16px, from 24px */
+    }
+
+    .reflection__columns,
+    .reflection__column {
+      gap: var(--scale-400); /* 16px, from 24px */
+    }
+
+    .reflection__card {
+      padding: var(--scale-300) var(--scale-400); /* 12px / 16px */
+    }
+  }
+</style>

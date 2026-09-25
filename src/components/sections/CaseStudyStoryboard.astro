@@ -1,0 +1,1049 @@
+---
+// CaseStudyStoryboard — Section 5 of a case study: one phone in the middle,
+// four numbered steps around it, and a recording for each step.
+//
+// The section is taller than the screen. While you scroll through it the phone
+// and the four steps stay still, and the step you have reached lights up while
+// the others stay faded. Its recording starts from the beginning and plays
+// once, then holds on its last frame.
+//
+// Scrolling is the normal way through, but every step is also a button: click
+// one and the page scrolls to it. That keeps the section usable with a
+// keyboard, and lets a reader jump straight to the part they care about.
+//
+// The phone is the iPhone frame exported from the Figma file, laid over the
+// recordings with its screen punched out, so the bezel and Dynamic Island sit
+// on top and the recording plays through the hole.
+//
+// The words, the recordings and where each step sits all come from the case
+// study's file in src/content/.
+import CaseStudyHeading from "./CaseStudyHeading.astro";
+
+interface Step {
+  number: string;
+  title: string;
+  body: string;
+  side: "left" | "right";
+  video: string;
+  poster: string;
+  alt: string;
+  pointAt?: number;
+}
+
+interface Props {
+  eyebrow: string;
+  headline: string;
+  steps: Step[];
+  // What the recordings are of. "phone" puts them inside the iPhone frame with
+  // the steps either side of it; "web" shows them in a plain landscape screen
+  // on the left with the steps stacked down the right.
+  media?: "phone" | "web";
+}
+
+const { eyebrow, headline, steps, media = "phone" } = Astro.props;
+
+// The image folders have spaces in their names; a path has to be escaped so
+// browsers read it as one address.
+const url = (path: string) => encodeURI(path);
+
+// The device the recordings sit inside, exported from the Figma file with its
+// screen punched out. See scripts/make-device-frame.mjs.
+const frame =
+  media === "web"
+    ? { src: "/images/BL Branded Fare/laptop-frame.webp", width: 2906, height: 1684 }
+    : { src: "/images/BL Branded Fare/iphone-frame.webp", width: 1020, height: 2094 };
+
+const leftSteps = steps.filter((step) => step.side === "left");
+const rightSteps = steps.filter((step) => step.side === "right");
+---
+
+<section class:list={["storyboard", media === "web" && "storyboard--web"]}>
+  {/* On a phone there is only room for one thing at a time, so the writing
+      reads first and scrolls away, leaving the whole screen to the phone and
+      the step you are on. On anything wider the copy below is used instead,
+      inside the part that stays still. */}
+  <div class="storyboard__intro storyboard__intro--loose">
+    <CaseStudyHeading eyebrow={eyebrow} headline={headline} maxWidth="623px" />
+  </div>
+
+  <div class="storyboard__runway" style={`--steps: ${steps.length}`}>
+    <div class="storyboard__stage">
+      <div class="storyboard__intro storyboard__intro--pinned">
+        <CaseStudyHeading
+          eyebrow={eyebrow}
+          headline={headline}
+          maxWidth="623px"
+        />
+      </div>
+
+      <div class="storyboard__scene">
+        <div class="storyboard__column storyboard__column--left">
+          {leftSteps.map((step) => (
+            <button
+              class="storyboard__note storyboard__note--left"
+              type="button"
+              data-step={steps.indexOf(step)}
+            >
+              <span class="storyboard__note-content">
+                <span class="storyboard__note-head">
+                  <span class="storyboard__badge">{step.number}</span>
+                  <span class="storyboard__title">{step.title}</span>
+                </span>
+                <span class="storyboard__body">{step.body}</span>
+              </span>
+
+              <span
+                class="storyboard__connector"
+                data-point-at={step.pointAt}
+                aria-hidden="true"
+              />
+            </button>
+          ))}
+        </div>
+
+        <div class="storyboard__device">
+          <div class="storyboard__screen">
+          {
+            steps.map((step) => (
+              <video
+                class="storyboard__video"
+                src={url(step.video)}
+                poster={url(step.poster)}
+                aria-label={step.alt}
+                muted
+                playsinline
+                preload="none"
+                controlslist="nodownload noplaybackrate"
+                disablepictureinpicture
+              />
+            ))
+          }
+          </div>
+
+          <img
+            class="storyboard__frame"
+            src={url(frame.src)}
+            alt=""
+            width={frame.width}
+            height={frame.height}
+          />
+        </div>
+
+        <div class="storyboard__column storyboard__column--right">
+          {rightSteps.map((step) => (
+            <button
+              class="storyboard__note storyboard__note--right"
+              type="button"
+              data-step={steps.indexOf(step)}
+            >
+              <span class="storyboard__note-content">
+                <span class="storyboard__note-head">
+                  <span class="storyboard__badge">{step.number}</span>
+                  <span class="storyboard__title">{step.title}</span>
+                </span>
+                <span class="storyboard__body">{step.body}</span>
+              </span>
+
+              <span
+                class="storyboard__connector"
+                data-point-at={step.pointAt}
+                aria-hidden="true"
+              />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Only shown on narrow screens, where there is room for one step's
+          writing at a time and the others are hidden rather than faded. */}
+      <div class="storyboard__rail">
+        {
+          steps.map((step, index) => (
+            <button
+              class="storyboard__rail-step"
+              type="button"
+              data-step={index}
+              aria-label={`Step ${step.number}: ${step.title}`}
+            >
+              {step.number}
+            </button>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Which step you are on is worked out from how far you have scrolled into
+  // the tall runway behind the stage. The runway is the only reason the
+  // section is taller than the screen; nothing is drawn in it.
+  const quiet = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  for (const board of document.querySelectorAll<HTMLElement>(".storyboard")) {
+    const runway = board.querySelector<HTMLElement>(".storyboard__runway");
+    const stage = board.querySelector<HTMLElement>(".storyboard__stage");
+    const notes = [...board.querySelectorAll<HTMLElement>(".storyboard__note")];
+    const rail = [
+      ...board.querySelectorAll<HTMLElement>(".storyboard__rail-step"),
+    ];
+    const videos = [
+      ...board.querySelectorAll<HTMLVideoElement>(".storyboard__video"),
+    ];
+    if (!runway || !stage || notes.length === 0) continue;
+
+    const count = videos.length;
+    let current = -1;
+    // Browsers stop a recording that is playing out of sight, so nothing is
+    // started until the stage is actually on screen.
+    let onScreen = false;
+    // True once the stage is about a screen away. Until then nothing is
+    // downloaded, so the page opens without fetching recordings nobody is
+    // looking at yet.
+    let near = false;
+
+    /** Plays the step's recording, unless it has already run to its end. */
+    function playCurrent() {
+      const video = videos[current];
+      if (!video || quiet || !onScreen || video.ended) return;
+      // Some devices refuse to start a video on their own (an iPhone in Low
+      // Power Mode, for one). Then the play button is shown, so the reader
+      // can start it with a tap instead of looking at a still frame.
+      video.play().catch(() => {
+        video.controls = true;
+      });
+    }
+
+    /* Downloads the step on screen, then the one after it so it is ready by
+       the time you scroll to it. Only ever two at once, so the one you are
+       looking at isn't left waiting behind the rest. */
+    function fetchAround() {
+      if (!near) return;
+      for (const video of [videos[current], videos[current + 1]]) {
+        if (video && video.preload === "none") video.preload = "auto";
+      }
+    }
+
+    /** How far the page scrolls while the stage is held still. */
+    const travel = () => Math.max(1, runway.offsetHeight - stage.offsetHeight);
+
+    function show(index: number) {
+      if (index === current) return;
+      current = index;
+
+      for (const note of notes) {
+        const on = Number(note.dataset.step) === index;
+        note.classList.toggle("is-active", on);
+        // Tells a screen reader which step of the four this is up to
+        if (on) note.setAttribute("aria-current", "step");
+        else note.removeAttribute("aria-current");
+      }
+
+      for (const [i, step] of rail.entries()) {
+        step.classList.toggle("is-active", i === index);
+      }
+
+      for (const [i, video] of videos.entries()) {
+        const on = i === index;
+        video.classList.toggle("is-active", on);
+        if (on) {
+          // Always from the beginning, so nobody arrives halfway through the
+          // flow and sees the ending first.
+          video.currentTime = 0;
+        } else {
+          video.pause();
+        }
+      }
+
+      fetchAround();
+
+      // Left to finish and hold its last frame — there is no loop, so a
+      // recording never snaps back to the start while you are reading.
+      playCurrent();
+    }
+
+    /* How far the stage has ridden down the runway. Taking the difference
+       between the two means it does not matter that the stage stops short of
+       the top of the screen to clear the nav. */
+    const passed = () =>
+      stage!.getBoundingClientRect().top - runway!.getBoundingClientRect().top;
+
+    function update() {
+      const progress = Math.min(Math.max(passed() / travel(), 0), 1);
+      show(Math.min(count - 1, Math.floor(progress * count)));
+    }
+
+    // Scrolls to the middle of a step's stretch of the runway, so clicking a
+    // step lands you squarely on it rather than on its edge.
+    function goTo(index: number) {
+      const runwayTop = runway!.getBoundingClientRect().top + window.scrollY;
+      // where the stage comes to rest, so the sum matches what update() reads
+      const rest = parseFloat(getComputedStyle(stage!).top) || 0;
+      const target = runwayTop - rest + ((index + 0.5) / count) * travel();
+      window.scrollTo({
+        top: target,
+        behavior: quiet ? "auto" : "smooth",
+      });
+    }
+
+    for (const button of [...notes, ...rail]) {
+      button.addEventListener("click", () => {
+        goTo(Number(button.dataset.step));
+      });
+    }
+
+    // Reading the scroll position on every scroll event is more often than the
+    // screen can redraw, so the work is held until the next frame.
+    let waiting = false;
+    const onScroll = () => {
+      if (waiting) return;
+      waiting = true;
+      requestAnimationFrame(() => {
+        waiting = false;
+        update();
+      });
+    };
+
+    // Starts the recording when the section comes into view and stops it when
+    // it leaves, so nothing plays to an empty room.
+    new IntersectionObserver(
+      ([entry]) => {
+        onScreen = entry.isIntersecting;
+        if (onScreen) playCurrent();
+        else videos[current]?.pause();
+      },
+      { threshold: 0 },
+    ).observe(stage);
+
+    new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        near = true;
+        fetchAround();
+      },
+      { rootMargin: "100% 0px" },
+    ).observe(stage);
+
+    // If a step's recording wasn't ready when you reached it — say the screen
+    // was resized and landed you on a later step — start it as soon as it is.
+    for (const [i, video] of videos.entries()) {
+      video.addEventListener("canplay", () => {
+        if (i === current && video.paused) playCurrent();
+      });
+    }
+
+    // Bends the lines of steps that point at one part of the recording. How
+    // far each has to drop depends on where the writing and the phone happen
+    // to sit at this window size, so it is measured rather than fixed.
+    const device = board.querySelector<HTMLElement>(".storyboard__device");
+    const bent = [
+      ...board.querySelectorAll<HTMLElement>(".storyboard__connector[data-point-at]"),
+    ];
+    function bendLines() {
+      if (!device) return;
+      const phone = device.getBoundingClientRect();
+      for (const line of bent) {
+        line.style.removeProperty("--bend");
+        const start = line.getBoundingClientRect();
+        // Hidden on narrow screens, where there is no line to draw
+        if (start.height === 0) continue;
+        const target = phone.top + Number(line.dataset.pointAt) * phone.height;
+        const drop = Math.round(target - (start.top + 4));
+        // Only ever bends down: a target above the title stays a straight line
+        if (drop > 0) line.style.setProperty("--bend", `${drop}px`);
+      }
+    }
+
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", () => {
+      onScroll();
+      bendLines();
+    });
+    update();
+    bendLines();
+    // The writing can shift once the web fonts arrive, so measure again then
+    document.fonts?.ready.then(bendLines);
+
+    // Readers who have asked their device for less movement get a still frame
+    // they can start themselves, rather than movement they didn't want.
+    if (quiet) {
+      for (const video of videos) {
+        video.controls = true;
+        video.pause();
+      }
+    }
+  }
+</script>
+
+<style>
+  .storyboard {
+    width: min(1280px, 100%);
+    margin: var(--spacing-l) auto 0; /* 40px below the section above */
+    border-radius: var(--scale-400); /* 16px */
+    background: var(--surface-secondary);
+  }
+
+  /* ----- The runway -----
+     Nothing is drawn in here. Its only job is to be tall, so there is
+     something to scroll through while the stage above stays still. Each step
+     gets a screenful and a bit; raise the 72vh for a slower read, lower it for
+     a quicker one. */
+  .storyboard__runway {
+    height: calc(100vh + var(--steps, 4) * 72vh);
+  }
+
+  /* ----- The stage -----
+     Held still at the top of the screen for as long as the runway lasts. */
+  .storyboard__stage {
+    /* The nav floats over the page and never gets out of the way, so the part
+       that stays still starts below where it sits. The card itself still runs
+       to the top of the screen behind it, so nothing looks cut off — and the
+       24px above the eyebrow is untouched, which is what lines this section's
+       heading up with every other one. */
+    --nav-clear: 96px;
+
+    position: sticky;
+    top: var(--nav-clear);
+
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-l); /* 40px under the heading */
+    height: calc(100vh - var(--nav-clear));
+    max-height: 1037px; /* the height of the frame in the design */
+    box-sizing: border-box;
+    padding: var(--scale-600); /* 24px, the same as every other section */
+    overflow: hidden;
+  }
+
+  /* The heading keeps its full height; the scene below gives way instead. */
+  .storyboard__intro {
+    flex-shrink: 0;
+  }
+
+  /* The loose copy is for phones only. Its 24px above the eyebrow is the same
+     as every other section; its sides line up with the stage below it. */
+  .storyboard__intro--loose {
+    display: none;
+    padding: var(--scale-600) var(--scale-600) 0; /* 24px */
+  }
+
+  /* ----- The row holding the steps and the phone ----- */
+
+  .storyboard__scene {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    flex: 1;
+    min-height: 0;
+    /* Never taller than the phone is in the design. Without this the columns
+       stretch to fill a tall window and the two steps in a column drift far
+       apart, instead of sitting either side of the phone as they do in the
+       design. */
+    max-height: 698px;
+  }
+
+  /* Each column holds two steps: one near the top, one near the bottom, with
+     the space between them shared out. The design starts the right column
+     lower than the left, which is what the padding above each one does. */
+  .storyboard__column {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    flex: 1;
+    /* Never narrower than one step plus a joining line you can see */
+    min-width: calc(346px + 40px);
+  }
+
+  /* The design drops the left column 104px and the right one 189px. Both sit
+     higher here — 48px and 136px — so the first step in each column clears the
+     second by a comfortable gap rather than nearly touching it, while the right
+     column still starts lower than the left. The tiers further down pull these
+     in again as the window gets shorter. */
+  .storyboard__column--left {
+    padding-top: 48px;
+  }
+
+  .storyboard__column--right {
+    padding-top: 136px;
+  }
+
+  /* ----- One step ----- */
+
+  .storyboard__note {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-m); /* 16px */
+
+    /* It is a button, so it has to be told to look like the writing it is */
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+
+    /* The step you have not reached yet stays faint but still readable */
+    opacity: 0.3;
+    transition: opacity 250ms ease-out;
+  }
+
+  .storyboard__note--right {
+    flex-direction: row-reverse;
+  }
+
+  .storyboard__note.is-active {
+    opacity: 1;
+  }
+
+  /* Hovering a faded step lifts it enough to show it can be clicked */
+  .storyboard__note:not(.is-active):hover {
+    opacity: 0.55;
+  }
+
+  .storyboard__note:focus-visible {
+    outline: var(--scale-50) solid var(--border-primary); /* 2px */
+    outline-offset: var(--scale-100); /* 4px */
+    border-radius: var(--radius-xs);
+  }
+
+  .storyboard__note-content {
+    display: flex;
+    flex-direction: column;
+    gap: var(--scale-300); /* 12px */
+    flex: 0 0 346px;
+    width: 346px;
+  }
+
+  .storyboard__note-head {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--scale-200); /* 8px */
+  }
+
+  .storyboard__badge {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    border-radius: var(--radius-rounded);
+    background: var(--surface-step-badge);
+
+    font-family: var(--text-style-step-number-family);
+    font-weight: var(--text-style-step-number-weight);
+    font-size: var(--text-style-step-number-size);
+    line-height: var(--text-style-step-number-line-height);
+    color: var(--text-primary);
+  }
+
+  .storyboard__title {
+    font-family: var(--text-style-body-emphasized-family);
+    font-weight: var(--text-style-body-emphasized-weight);
+    font-size: var(--text-style-body-emphasized-size);
+    line-height: var(--text-style-body-emphasized-line-height);
+    color: var(--text-primary);
+  }
+
+  .storyboard__body {
+    /* Lines up under the title rather than under the number */
+    padding-left: 38px;
+    font-family: var(--text-style-body-family);
+    font-weight: var(--text-style-body-weight);
+    font-size: var(--text-style-body-size);
+    line-height: var(--text-style-body-line-height);
+    color: var(--text-secondary);
+  }
+
+  /* ----- The line joining a step to the phone -----
+     Drawn here rather than kept as a file, since it is one line and one dot.
+     The dot sits at the phone end, as in the design.
+
+     Usually the line runs straight across. A step with `pointAt` in the
+     content file has its line bend down halfway, so it ends on that part of
+     the recording: the script at the bottom works out how far down that is
+     and stores it as --bend. The line is drawn in three pieces — out from the
+     writing and down (::before), then across to the phone (the background)
+     — with the dot (::after) at the end. With no bend the three pieces sit on
+     one level and read as a single straight line. */
+
+  .storyboard__connector {
+    --bend: 0px;
+    --line: var(--color-grey-dark-grey);
+    position: relative;
+    flex: 1;
+    min-width: 40px;
+    height: calc(8px + var(--bend));
+    /* Drops the line to the middle of the title's first line */
+    margin-top: calc(var(--text-style-body-emphasized-line-height) / 2 - 4px);
+    /* The half nearest the phone, level with the dot */
+    background: linear-gradient(var(--line), var(--line)) no-repeat;
+    background-size: calc(50% - 8px) var(--scale-25); /* 1px tall */
+  }
+
+  /* The half nearest the writing, and the drop at its far end */
+  .storyboard__connector::before {
+    content: "";
+    position: absolute;
+    top: 3.5px; /* centres the 1px line on the 8px dot */
+    width: 50%;
+    height: var(--bend);
+    border-top: var(--scale-25) solid var(--line);
+  }
+
+  .storyboard__connector::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .storyboard__note--left .storyboard__connector {
+    background-position: right 8px bottom 3.5px;
+  }
+
+  .storyboard__note--left .storyboard__connector::before {
+    left: 0;
+    border-right: var(--scale-25) solid var(--line);
+  }
+
+  .storyboard__note--left .storyboard__connector::after {
+    right: 0;
+  }
+
+  .storyboard__note--right .storyboard__connector {
+    background-position: left 8px bottom 3.5px;
+  }
+
+  .storyboard__note--right .storyboard__connector::before {
+    right: 0;
+    border-left: var(--scale-25) solid var(--line);
+  }
+
+  .storyboard__note--right .storyboard__connector::after {
+    left: 0;
+  }
+
+  /* ----- The phone -----
+     A plain frame rather than a photograph of a handset, the same treatment
+     the phones in Section 4 use. Every measurement is a share of the height,
+     so the whole thing keeps its shape at any size. */
+
+  .storyboard__device {
+    position: relative;
+    flex: 0 0 auto;
+    align-self: center;
+
+    /* As tall as the row allows, never taller than in the design. The width
+       follows from the device's own shape. */
+    height: 100%;
+    max-height: 698px;
+    aspect-ratio: 340 / 697.869;
+  }
+
+  /* The iPhone itself, exported from the Figma file (the "Apple iPhone 15 Pro
+     Blue Titanium" frame) with the screen punched out of it. It lies over the
+     recordings, so its bezel, buttons and Dynamic Island sit on top and the
+     recording shows through the hole. To replace it, re-export that frame.
+
+     Because the screen is a hole in this picture, the recordings underneath
+     need no rounding of their own — the corners are part of the picture. */
+  .storyboard__frame {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* Exactly the hole in the picture above: the design's screen, measured
+     against the device's own width and height.
+
+     The rounded corners matter. Without them the recording keeps its square
+     corners, which stick out past the handset's rounded ones and show as four
+     sharp tabs around the phone. 44px in the design, written as a share of the
+     screen's width and of its height — the same corner, two numbers, because
+     a percentage across counts against the width and one down counts against
+     the height. */
+  .storyboard__screen {
+    position: absolute;
+    left: 4.406%;
+    right: 4.462%;
+    top: 1.883%;
+    bottom: 1.863%;
+    border-radius: 14.201% / 6.55%;
+    overflow: hidden;
+    background: var(--surface-primary);
+  }
+
+  .storyboard__video {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+
+    /* All four sit on top of each other; only the step you are on is shown.
+       The three underneath are also taken out of the way of the pointer, or
+       the top one would swallow clicks meant for the one you can see. */
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 250ms ease-out;
+  }
+
+  .storyboard__video.is-active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* ----- The website version (Section 6) -----
+     The same section with a landscape recording instead of a phone: the
+     recording sits on the left at the size it has in the design, and both
+     steps stack down the right, so there is no second column. Everything
+     above — the runway, the stage, the steps, the joining lines — is shared. */
+
+  .storyboard--web .storyboard__scene {
+    align-items: flex-start;
+    /* The cap keeps the two steps beside a phone from drifting apart. Here the
+       steps set the height themselves, so it is not wanted. */
+    max-height: none;
+
+    /* The laptop is 840px wide — a little over the design's 780px — or less
+       when the row can't fit it beside the writing and a short joining line.
+       The picture's base sticks out 8.81% past the lid on the right, and the
+       line is drawn over that overhang (see the connector below), so the
+       laptop can grow into it: that is the 0.9119. The 72px is the line,
+       56px, plus the 16px gap before the writing. A short window caps it as
+       well, so the whole thing still fits on screen; 1.7257 is the mockup's
+       width for each unit of its height. `cqw` is 1% of this row's width. */
+    container-type: inline-size;
+    --note-width: 346px;
+    --laptop-width: min(
+      840px,
+      calc((100cqw - var(--note-width) - 72px) / 0.9119),
+      calc((100vh - 300px) * 1.7257)
+    );
+  }
+
+  /* Nothing sits to the left of the recording */
+  .storyboard--web .storyboard__column--left {
+    display: none;
+  }
+
+  /* Both steps run down the right, one under the other, 24px apart and
+     starting 24px below the top of the recording, as in the design. */
+  .storyboard--web .storyboard__column--right {
+    justify-content: flex-start;
+    gap: var(--scale-600); /* 24px */
+    padding-top: var(--scale-600); /* 24px */
+    /* Takes whatever the laptop leaves; the line below decides how much of
+       that it uses. */
+    min-width: 0;
+  }
+
+  /* The laptop sits hard left, level with the heading. Any room left over
+     goes into the line (below), and past its longest the rest falls to the
+     right of the writing. Writing to the right, line to the left of it —
+     `flex-end` here because the step's row runs right to left. */
+  .storyboard--web .storyboard__scene {
+    justify-content: flex-start;
+  }
+
+  .storyboard--web .storyboard__note {
+    justify-content: flex-end;
+  }
+
+  /* The line starts at the edge of the laptop's lid rather than the edge of
+     the picture, which is the base sticking out 8.81% further. Pulled back
+     over the base, the dot touches the lid. It stretches into whatever room
+     the laptop leaves, between 56px (enough either side of the bend) and
+     120px (so a short window, with its smaller laptop, doesn't string the
+     writing far away from it). */
+  .storyboard--web .storyboard__connector {
+    flex: 1 1 56px;
+    min-width: 56px;
+    max-width: 120px;
+    margin-left: calc(var(--laptop-width) * -0.0881);
+  }
+
+  .storyboard--web .storyboard__device {
+    flex: 0 1 auto;
+    align-self: flex-start;
+    width: var(--laptop-width);
+    height: auto;
+    max-height: none;
+    aspect-ratio: 2906 / 1684;
+  }
+
+  /* Exactly the hole in the laptop picture, measured off the picture itself. */
+  .storyboard--web .storyboard__screen {
+    left: 9.876%;
+    right: 9.979%;
+    top: 3.207%;
+    bottom: 10.333%;
+    border-radius: 0;
+  }
+
+  /* The recordings are a little taller than a laptop screen — 1.47 against
+     1.60 — so about 8% of their height cannot be shown. It comes off the
+     bottom: the top of each recording carries the page header, while the
+     bottom is a part-row that reads as the page carrying on below the fold. */
+  .storyboard--web .storyboard__video {
+    object-position: top;
+  }
+
+  /* ----- The row of numbers, on narrow screens only ----- */
+
+  .storyboard__rail {
+    display: none;
+    justify-content: center;
+    gap: var(--scale-300); /* 12px */
+  }
+
+  .storyboard__rail-step {
+    width: 30px;
+    height: 30px;
+    padding: 0;
+    border: 0;
+    border-radius: var(--radius-rounded);
+    background: var(--surface-step-badge);
+    cursor: pointer;
+
+    font-family: var(--text-style-step-number-family);
+    font-weight: var(--text-style-step-number-weight);
+    font-size: var(--text-style-body-size);
+    line-height: 1;
+    color: var(--text-primary);
+
+    opacity: 0.4;
+    transition:
+      opacity 250ms ease-out,
+      background-color 250ms ease-out;
+  }
+
+  .storyboard__rail-step.is-active {
+    background: var(--surface-reverse);
+    color: var(--text-reverse);
+    opacity: 1;
+  }
+
+  /* ----- Short windows -----
+     The whole thing is drawn to fit a tall screen. In a short browser window
+     there isn't room for the largest type and the design's spacing both, so
+     the writing steps down to its tablet size and the steps start higher.
+     Without this the two steps in a column run into each other. */
+  /* ----- Short windows -----
+     The design is drawn to a tall frame. In a shorter browser window the two
+     steps in a column would run into each other, so each tier below gives
+     something up — first the space between lines, then the heading's size,
+     then the stagger. The letters stay their full size as long as possible,
+     since that is what there is to read.
+
+     A note on the bold sizes: they have to be named too. A token written as
+     `var(--another-token)` is worked out once, where it is written — in
+     tokens.css — so changing the token it points at here does not reach it.
+     That only matters because this section resizes its own type; everywhere
+     else the whole scale moves together. */
+  @media (max-height: 1046px) {
+    .storyboard__stage {
+      --text-style-body-line-height: 28px;
+      --text-style-body-emphasized-line-height: 28px;
+    }
+  }
+
+  /* A laptop screen. The heading gives up a size, and the stagger pulls in. */
+  @media (max-height: 946px) {
+    .storyboard__stage {
+      --text-style-subheadline-size: 20px;
+      gap: var(--scale-600); /* 24px */
+    }
+
+    .storyboard__column--left {
+      padding-top: 32px;
+    }
+
+    .storyboard__column--right {
+      padding-top: 104px;
+    }
+  }
+
+  /* Shorter still. Now the letters do shrink, and the steps start near the
+     top of the phone rather than a third of the way down it. */
+  @media (max-height: 846px) {
+    .storyboard__stage {
+      --text-style-body-size: 16px;
+      --text-style-body-line-height: 26px;
+      --text-style-body-emphasized-size: 16px;
+      --text-style-body-emphasized-line-height: 26px;
+    }
+
+    .storyboard__column--left {
+      padding-top: 0;
+    }
+
+    .storyboard__column--right {
+      padding-top: 48px;
+    }
+  }
+
+  /* ----- Smaller screens -----
+     The type scale steps down at 1279px, so the heading takes less room and
+     the phone can have more. */
+  @media (max-width: 1279px) {
+    .storyboard__stage {
+      --intro-block: 210px;
+    }
+
+    .storyboard--web .storyboard__scene {
+      --note-width: 300px;
+    }
+
+    .storyboard__column {
+      min-width: calc(300px + 40px);
+    }
+
+    .storyboard__note-content {
+      flex: 0 0 300px;
+      width: 300px;
+    }
+  }
+
+  /* ----- Narrower than a small laptop -----
+     Two columns of writing either side of a phone stop fitting, so the phone
+     moves above the writing and only the step you are on is shown. The row of
+     numbers takes over from the fading as the way to see where you are. */
+  @media (max-width: 1089px) {
+    .storyboard__intro--loose {
+      display: block;
+    }
+
+    .storyboard__intro--pinned {
+      display: none;
+    }
+
+    .storyboard__stage {
+      gap: var(--scale-600); /* 24px */
+      justify-content: center;
+    }
+
+    /* Stacked, the website recording simply takes the width it is given; its
+       height follows from its shape. */
+    .storyboard--web .storyboard__device {
+      width: 100%;
+      height: auto;
+    }
+
+    /* Stacked, the row has no height of its own to hand the phone, so the
+       phone takes what is left once the writing and the numbers have theirs —
+       and no more than the width allows, or a narrow screen would push it off
+       the sides. It grows all the way to its size in the design, so a big
+       window gets a big phone rather than a small one adrift in a lot of
+       space. 2.0526 is the phone's height for each unit of its width. */
+    .storyboard__device {
+      height: clamp(
+        200px,
+        min(calc(100vh - 392px), calc((100vw - 48px) * 2.0526)),
+        698px
+      );
+      max-height: none;
+    }
+
+    .storyboard__scene {
+      flex-direction: column;
+      align-items: center;
+      gap: var(--scale-600); /* 24px */
+      height: auto;
+      min-height: 0;
+      /* Stacked, the row is as tall as the phone and the writing together.
+         The cap belongs to the side-by-side layout, where it keeps the two
+         steps in a column from drifting apart. */
+      max-height: none;
+    }
+
+    .storyboard__device {
+      order: 1;
+    }
+
+    .storyboard__column {
+      order: 2;
+      position: static;
+      flex: 0 0 auto;
+      min-width: 0;
+      width: 100%;
+      max-width: 623px;
+      height: auto;
+      /* The stagger that sets the two columns off against each other only
+         makes sense side by side. Stacked, it is just empty space. */
+      padding-top: 0;
+    }
+
+    /* The column whose turn it isn't holds nothing, so it is taken out
+       altogether rather than left as a gap under the phone. */
+    .storyboard__column:not(:has(.storyboard__note.is-active)) {
+      display: none;
+    }
+
+    /* Only the step you are on, at full strength — there is no room to show
+       the other three faded. */
+    .storyboard__note {
+      position: static;
+      display: none;
+      opacity: 1;
+    }
+
+    .storyboard__note.is-active {
+      display: flex;
+    }
+
+    .storyboard__connector {
+      display: none;
+    }
+
+    .storyboard__note-content {
+      flex: 1 1 auto;
+      width: auto;
+      min-width: 0;
+      gap: var(--scale-200); /* 8px */
+    }
+
+    .storyboard__rail {
+      display: flex;
+      order: 3;
+    }
+  }
+
+  /* ----- Phones ----- */
+  @media (max-width: 699px) {
+    .storyboard__stage {
+      padding: var(--scale-400); /* 16px */
+    }
+
+    .storyboard__intro--loose {
+      padding: var(--scale-600) var(--scale-400) 0; /* 24px above, 16px sides */
+    }
+
+    /* The phone no longer has to duck the nav itself — the stage does it. */
+    .storyboard__device {
+      height: clamp(200px, min(calc(100vh - 408px), calc((100vw - 48px) * 2.0526)), 698px);
+    }
+
+    .storyboard__body {
+      padding-left: 0;
+    }
+  }
+
+  /* ----- Less movement asked for -----
+     The stage still changes step as you scroll, but nothing fades. */
+  @media (prefers-reduced-motion: reduce) {
+    .storyboard__note,
+    .storyboard__video,
+    .storyboard__rail-step {
+      transition: none;
+    }
+  }
+</style>

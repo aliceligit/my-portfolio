@@ -95,6 +95,14 @@
   /* Stand-in fill shown where a real image or video isn't in place yet */
   --surface-placeholder: var(--color-grey-placeholder);
 
+  /* The circle behind a step number in a storyboard: the dark grey, softened
+     so the number reads without the circle competing with the writing. */
+  --surface-step-badge: color-mix(
+    in srgb,
+    var(--color-grey-dark-grey) 20%,
+    transparent
+  );
+
   /* Border colors */
   --border-primary: var(--color-grey-dark-grey);
   --border-secondary: var(--color-grey-medium-grey);
@@ -195,6 +203,14 @@
   --text-style-display-style: italic;
   --text-style-display-size: 40px;
   --text-style-display-line-height: 60px;
+
+  /* Step Number — Figtree Bold 20px. The number in the circle beside a
+     storyboard step. Stays one size at every width: the circle around it is a
+     fixed 30px, so the number cannot grow or shrink with the rest of the type. */
+  --text-style-step-number-family: var(--font-figtree);
+  --text-style-step-number-weight: var(--weight-bold);
+  --text-style-step-number-size: 20px;
+  --text-style-step-number-line-height: 20px;
 
   /* Display 2 — Cormorant Garamond Bold Italic 32px */
   --text-style-display-2-family: var(--font-cormorant-garamond);
